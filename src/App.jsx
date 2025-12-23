@@ -4,7 +4,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
-import Login from './pages/Login';
+//import Login from './pages/Login';
 import './App.css';
 
 function App() {
