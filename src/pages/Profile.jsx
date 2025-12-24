@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import ProfileCard from '../components/ProfileCard';
 import CompetitiveStats from '../components/CompetitiveStats';
 import EditProfiles from '../components/EditProfiles';
-import { db } from '../config/firebase';
+import { db } from '../config/firebase.js';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function Profile({ user }) {
@@ -107,7 +107,7 @@ export default function Profile({ user }) {
   const handleLogout = async () => {
     if (confirm('Are you sure you want to logout?')) {
       const { signOut } = await import('firebase/auth');
-      const { auth } = await import('../config/firebase');
+      const { auth } = await import('../config/firebase.js');
       await signOut(auth);
     }
   };

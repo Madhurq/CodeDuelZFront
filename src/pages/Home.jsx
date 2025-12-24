@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import MatchSearch from '../components/MatchSearch';
+//import MatchSearch from '../components/MatchSearch';
 import QuickStats from '../components/QuickStats';
-import { db } from '../config/firebase';
+import { db } from '../config/firebase.js';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function Home({ user }) {

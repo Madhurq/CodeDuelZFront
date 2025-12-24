@@ -1,10 +1,11 @@
+// src/App.jsx
 import { useState, useEffect } from 'react';
 import { auth } from './config/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
-//import Login from './pages/Login';
+import Login from './pages/Login';
 import './App.css';
 
 function App() {
@@ -13,7 +14,6 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check auth state
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -22,8 +22,27 @@ function App() {
     return unsubscribe;
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setCurrentPage('home');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   if (loading) {
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '1.2rem'
+      }}>
+        Loading...
+      </div>
+    );
   }
 
   // Show login if not authenticated
@@ -31,21 +50,13 @@ function App() {
     return <Login />;
   }
 
-  // Protect profile page - redirect to home if trying to access without being on profile
-  const handlePageChange = (page) => {
-    if (page === 'profile') {
-      setCurrentPage('profile');
-    } else {
-      setCurrentPage('home');
-    }
-  };
-
   return (
     <>
       <Navbar 
         currentPage={currentPage} 
-        onPageChange={handlePageChange}
+        onPageChange={setCurrentPage}
         user={user}
+        onLogout={handleLogout}
       />
       {currentPage === 'home' && <Home user={user} />}
       {currentPage === 'profile' && <Profile user={user} />}

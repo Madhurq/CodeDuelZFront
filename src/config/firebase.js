@@ -1,3 +1,4 @@
+// src/config/firebase.js
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
@@ -17,10 +18,12 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Analytics is optional, only works in browser + HTTPS
-export let analytics: ReturnType<typeof getAnalytics> | null = null;
+// Analytics - properly handle initialization
+let analytics = null;
 isSupported().then((yes) => {
   if (yes) {
     analytics = getAnalytics(app);
   }
 });
+
+export { analytics };

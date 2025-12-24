@@ -1,0 +1,91 @@
+/* Login.css (or App.css if you moved it) */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+
+.login-card {
+  width: 100%;
+  max-width: 420px;  /* desktop: nice fixed width */
+  border-radius: 12px;
+  padding: 2.5rem;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.login-header p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.divider {
+  text-align: center;
+  color: #999;
+  margin: 1.5rem 0;
+  position: relative;
+  width: fit-content;
+  padding: 0 1rem;
+  background: #fff;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -999px;
+  right: -999px;
+  height: 1px;
+  background: #ddd;
+}
+
+.toggle-auth {
+  text-align: center;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #667eea;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.link-btn:hover {
+  color: #5568d3;
+}
+
+@media (max-width: 600px) {
+  .login-container {
+    padding: 1rem;
+  }
+
+  .login-card {
+    padding: 1.5rem;
+  }
+
+  .login-header h1 {
+    font-size: 2rem;
+  }
+}
+
