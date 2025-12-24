@@ -7,79 +7,53 @@ export default function CompetitiveStats({ profiles, onAddClick }) {
     loadPlatformData();
   }, [profiles]);
 
-  const loadPlatformData = async () => {
+  const loadPlatformData = () => {
     const cards = [];
 
+    // Static data for now - you can connect to APIs later
     if (profiles.leetcode) {
-      try {
-        const response = await fetch(`https://leetcode.com/graphql/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            query: `query { userProfile(username: "${profiles.leetcode}") { userStats { totalSolved acSubmission { submissions } } } }`
-          })
-        });
-
-        const data = await response.json();
-        const stats = data.data?.userProfile?.userStats;
-        if (stats) {
-          cards.push({
-            platform: 'LeetCode',
-            icon: 'L',
-            iconClass: 'leetcode',
-            stats: [
-              { label: 'Solved', value: stats.totalSolved || 0 },
-              { label: 'Accepted', value: stats.acSubmission?.submissions || 0 }
-            ],
-            link: `https://leetcode.com/${profiles.leetcode}`
-          });
-        }
-      } catch (error) {
-        console.error('LeetCode error:', error);
-      }
+      cards.push({
+        platform: 'LeetCode',
+        icon: 'LC',
+        iconClass: 'leetcode',
+        stats: [
+          { label: 'Solved', value: 247 },
+          { label: 'Easy', value: 89 },
+          { label: 'Medium', value: 132 },
+          { label: 'Hard', value: 26 }
+        ],
+        link: `https://leetcode.com/${profiles.leetcode}`
+      });
     }
 
     if (profiles.codechef) {
-      try {
-        const response = await fetch(`https://competitive-coding-api.herokuapp.com/api/codechef/${profiles.codechef}`);
-        const data = await response.json();
-        if (data.status === 'success') {
-          cards.push({
-            platform: 'CodeChef',
-            icon: 'C',
-            iconClass: 'codechef',
-            stats: [
-              { label: 'Solutions', value: data.result.solution_count || 0 },
-              { label: 'Fully Solved', value: data.result.fully_solved || 0 }
-            ],
-            link: `https://www.codechef.com/users/${profiles.codechef}`
-          });
-        }
-      } catch (error) {
-        console.error('CodeChef error:', error);
-      }
+      cards.push({
+        platform: 'CodeChef',
+        icon: 'CC',
+        iconClass: 'codechef',
+        stats: [
+          { label: 'Rating', value: 1847 },
+          { label: 'Stars', value: '4★' },
+          { label: 'Global Rank', value: '12,453' },
+          { label: 'Country Rank', value: '2,341' }
+        ],
+        link: `https://www.codechef.com/users/${profiles.codechef}`
+      });
     }
 
     if (profiles.codeforces) {
-      try {
-        const response = await fetch(`https://codeforces.com/api/user.info?handles=${profiles.codeforces}`);
-        const data = await response.json();
-        if (data.status === 'OK') {
-          const user = data.result[0];
-          cards.push({
-            platform: 'Codeforces',
-            icon: 'CF',
-            iconClass: 'codeforces',
-            stats: [
-              { label: 'Rating', value: user.rating || 0 },
-              { label: 'Max Rating', value: user.maxRating || 0 }
-            ],
-            link: `https://codeforces.com/profile/${profiles.codeforces}`
-          });
-        }
-      } catch (error) {
-        console.error('Codeforces error:', error);
-      }
+      cards.push({
+        platform: 'Codeforces',
+        icon: 'CF',
+        iconClass: 'codeforces',
+        stats: [
+          { label: 'Rating', value: 1523 },
+          { label: 'Max Rating', value: 1682 },
+          { label: 'Rank', value: 'Specialist' },
+          { label: 'Contests', value: 45 }
+        ],
+        link: `https://codeforces.com/profile/${profiles.codeforces}`
+      });
     }
 
     setPlatformCards(cards);

@@ -51,79 +51,115 @@ export default function Login() {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <h1>⚔️ Code Battle</h1>
-          <p>1v1 Competitive Coding</p>
+      {/* Left Side - Aesthetic Visual */}
+      <div className="login-left">
+        <div className="brand-content">
+          <div className="brand-logo">⚔️</div>
+          <h1 className="brand-name">CodeDuelZ</h1>
+          <p className="brand-tagline">Where Code Warriors Battle</p>
+          
+          <div className="features-list">
+            <div className="feature-item">
+              <span className="feature-icon">🎯</span>
+              <div>
+                <h3>Real-time Battles</h3>
+                <p>Compete with developers worldwide</p>
+              </div>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">📊</span>
+              <div>
+                <h3>Track Progress</h3>
+                <p>Monitor your competitive stats</p>
+              </div>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">🏆</span>
+              <div>
+                <h3>Climb Ranks</h3>
+                <p>Rise through the leaderboards</p>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {error && <div className="error-banner">{error}</div>}
-
-        <form onSubmit={handleEmailAuth} className="login-form">
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
-              required
-              disabled={loading}
-            />
+      {/* Right Side - Login Form */}
+      <div className="login-right">
+        <div className="login-card">
+          <div className="login-header">
+            <h2>Welcome Back</h2>
+            <p>Sign in to continue your coding journey</p>
           </div>
 
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              disabled={loading}
-              minLength="6"
-            />
-          </div>
+          {error && <div className="error-banner">{error}</div>}
 
-          <button type="submit" disabled={loading} className="btn-primary">
-            {loading ? 'Loading...' : (isSignUp ? 'Create Account' : 'Sign In')}
+          <form onSubmit={handleEmailAuth} className="login-form">
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                required
+                disabled={loading}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                disabled={loading}
+                minLength="6"
+              />
+            </div>
+
+            <button type="submit" disabled={loading} className="btn-primary">
+              {loading ? 'Loading...' : (isSignUp ? 'Create Account' : 'Sign In')}
+            </button>
+          </form>
+
+          <div className="divider">OR</div>
+
+          <button 
+            onClick={handleGoogleSignIn} 
+            disabled={loading}
+            className="btn-google"
+          >
+            <span>🔗 Sign in with Google</span>
           </button>
-        </form>
 
-        <div className="divider">OR</div>
-
-        <button 
-          onClick={handleGoogleSignIn} 
-          disabled={loading}
-          className="btn-google"
-        >
-          🔗 Sign in with Google
-        </button>
-
-        <div className="toggle-auth">
-          {isSignUp ? (
-            <>
-              Already have an account?{' '}
-              <button 
-                type="button"
-                onClick={() => setIsSignUp(false)}
-                className="link-btn"
-              >
-                Sign In
-              </button>
-            </>
-          ) : (
-            <>
-              Don't have an account?{' '}
-              <button 
-                type="button"
-                onClick={() => setIsSignUp(true)}
-                className="link-btn"
-              >
-                Create One
-              </button>
-            </>
-          )}
+          <div className="toggle-auth">
+            {isSignUp ? (
+              <>
+                Already have an account?{' '}
+                <button 
+                  type="button"
+                  onClick={() => setIsSignUp(false)}
+                  className="link-btn"
+                >
+                  Sign In
+                </button>
+              </>
+            ) : (
+              <>
+                Don't have an account?{' '}
+                <button 
+                  type="button"
+                  onClick={() => setIsSignUp(true)}
+                  className="link-btn"
+                >
+                  Create One
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

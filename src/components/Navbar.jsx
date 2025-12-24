@@ -8,7 +8,7 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout }) {
           onClick={() => onPageChange('home')}
         >
           <div className="logo-icon">⚔️</div>
-          <span>Code Battle</span>
+          <span>CodeDuelZ</span>
         </button>
 
         <ul className="navbar-nav">

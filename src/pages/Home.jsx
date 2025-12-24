@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-//import MatchSearch from '../components/MatchSearch';
+import MatchSearch from '../components/MatchSearch';
 import QuickStats from '../components/QuickStats';
 import { db } from '../config/firebase.js';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -94,11 +94,100 @@ export default function Home({ user }) {
   }
 
   return (
-    <div className="container">
-      <div className="home-grid">
-        <MatchSearch onMatchFound={handleMatchFound} />
-        <QuickStats stats={stats} />
+    <div className="home-page">
+      <div className="container">
+        <div className="grid-2col">
+          <MatchSearch onMatchFound={handleMatchFound} />
+          <QuickStats stats={stats} />
+        </div>
+
+        {/* How It Works Section */}
+        <div className="info-section">
+          <h2 className="section-title-large">⚔️ How CodeDuelZ Works</h2>
+          <div className="feature-grid">
+            <div className="feature-card">
+              <div className="feature-icon">🎯</div>
+              <h3>1. Choose Your Challenge</h3>
+              <p>Select difficulty level and your preferred programming language. Get matched with opponents of similar skill.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">👥</div>
+              <h3>2. Get Matched</h3>
+              <p>Our intelligent matchmaking system pairs you with a worthy opponent in real-time for a fair competition.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">⏱️</div>
+              <h3>3. Code & Compete</h3>
+              <p>Solve challenging problems against the clock. Write clean, efficient code to outperform your opponent.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">🏆</div>
+              <h3>4. Climb the Ranks</h3>
+              <p>Win battles to increase your rating, earn achievements, and rise through competitive ranks.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Features Section */}
+        <div className="features-highlight">
+          <div className="highlight-item">
+            <div className="highlight-number">10+</div>
+            <div className="highlight-label">Programming Languages</div>
+          </div>
+          <div className="highlight-item">
+            <div className="highlight-number">500+</div>
+            <div className="highlight-label">Practice Problems</div>
+          </div>
+          <div className="highlight-item">
+            <div className="highlight-number">24/7</div>
+            <div className="highlight-label">Live Matchmaking</div>
+          </div>
+          <div className="highlight-item">
+            <div className="highlight-number">∞</div>
+            <div className="highlight-label">Learning Opportunities</div>
+          </div>
+        </div>
       </div>
+
+      {/* Footer */}
+      <footer className="app-footer">
+        <div className="footer-content">
+          <div className="footer-section">
+            <h4>⚔️ CodeDuelZ</h4>
+            <p>The ultimate 1v1 competitive coding platform. Sharpen your skills, compete with peers, and become a coding champion.</p>
+          </div>
+          <div className="footer-section">
+            <h4>Platform</h4>
+            <ul>
+              <li>How It Works</li>
+              <li>Leaderboard</li>
+              <li>Tournaments</li>
+              <li>Practice Arena</li>
+            </ul>
+          </div>
+          <div className="footer-section">
+            <h4>Resources</h4>
+            <ul>
+              <li>Documentation</li>
+              <li>API Reference</li>
+              <li>Community</li>
+              <li>Support</li>
+            </ul>
+          </div>
+          <div className="footer-section">
+            <h4>Connect</h4>
+            <ul>
+              <li>GitHub</li>
+              <li>Discord</li>
+              <li>Twitter</li>
+              <li>LinkedIn</li>
+            </ul>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>&copy; 2024 CodeDuelZ. Built with ❤️ for developers.</p>
+        </div>
+      </footer>
     </div>
   );
 }

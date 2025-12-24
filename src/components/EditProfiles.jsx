@@ -3,7 +3,7 @@ import { useState } from 'react';
 export default function EditProfiles({ profiles, loading, onSave, onCancel }) {
   const [leetcode, setLeetcode] = useState(profiles.leetcode);
   const [codechef, setCodechef] = useState(profiles.codechef);
-  const [codeforces, setCeodeforces] = useState(profiles.codeforces);
+  const [codeforces, setCodeforces] = useState(profiles.codeforces);
 
   const handleSave = () => {
     onSave({
@@ -46,7 +46,7 @@ export default function EditProfiles({ profiles, loading, onSave, onCancel }) {
             className="input-field"
             placeholder="handle"
             value={codeforces}
-            onChange={(e) => setCeodeforces(e.target.value)}
+            onChange={(e) => setCodeforces(e.target.value)}
           />
         </div>
 
