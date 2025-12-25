@@ -5,11 +5,13 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
   signInWithPopup,
-  GoogleAuthProvider 
+  GoogleAuthProvider,
+  GithubAuthProvider 
 } from 'firebase/auth';
 import '../styles/Login.css';
 
 const googleProvider = new GoogleAuthProvider();
+const githubProvider = new GithubAuthProvider();
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -49,6 +51,19 @@ export default function Login() {
     }
   };
 
+  const handleGithubSignIn = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      await signInWithPopup(auth, githubProvider);
+    } catch (err) {
+      setError(err.message || 'GitHub sign-in failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="login-container">
       {/* Left Side - Aesthetic Visual */}
@@ -56,14 +71,14 @@ export default function Login() {
         <div className="brand-content">
           <div className="brand-logo">⚔️</div>
           <h1 className="brand-name">CodeDuelZ</h1>
-          <p className="brand-tagline">Where Code Warriors Battle</p>
+          <p className="brand-tagline">A 1V1 Coding Platform!!!</p>
           
           <div className="features-list">
             <div className="feature-item">
               <span className="feature-icon">🎯</span>
               <div>
                 <h3>Real-time Battles</h3>
-                <p>Compete with developers worldwide</p>
+                <p>Compete with <strong>CODERS</strong> worldwide</p>
               </div>
             </div>
             <div className="feature-item">
@@ -125,15 +140,46 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="divider">OR</div>
+          <div className="divider"><span>OR</span></div>
 
-          <button 
-            onClick={handleGoogleSignIn} 
-            disabled={loading}
-            className="btn-google"
-          >
-            <span>🔗 Sign in with Google</span>
-          </button>
+          <div className="social-login-buttons">
+            <button
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+              className="btn-google"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <rect x="0.5" y="0.5" width="39" height="39" rx="19.5" fill="white"/>
+              <g clip-path="url(#clip0_710_6217)">
+              <path d="M29.6 20.2273C29.6 19.5182 29.5364 18.8364 29.4182 18.1818H20V22.05H25.3818C25.15 23.3 24.4455 24.3591 23.3864 25.0682V27.5773H26.6182C28.5091 25.8364 29.6 23.2727 29.6 20.2273Z" fill="#4285F4"/>
+              <path d="M20 30C22.7 30 24.9636 29.1045 26.6181 27.5773L23.3863 25.0682C22.4909 25.6682 21.3454 26.0227 20 26.0227C17.3954 26.0227 15.1909 24.2636 14.4045 21.9H11.0636V24.4909C12.7091 27.7591 16.0909 30 20 30Z" fill="#34A853"/>
+              <path d="M14.4045 21.9C14.2045 21.3 14.0909 20.6591 14.0909 20C14.0909 19.3409 14.2045 18.7 14.4045 18.1V15.5091H11.0636C10.3864 16.8591 10 18.3864 10 20C10 21.6136 10.3864 23.1409 11.0636 24.4909L14.4045 21.9Z" fill="#FBBC04"/>
+              <path d="M20 13.9773C21.4681 13.9773 22.7863 14.4818 23.8227 15.4727L26.6909 12.6045C24.9591 10.9909 22.6954 10 20 10C16.0909 10 12.7091 12.2409 11.0636 15.5091L14.4045 18.1C15.1909 15.7364 17.3954 13.9773 20 13.9773Z" fill="#E94235"/>
+              </g>
+              <rect x="0.5" y="0.5" width="39" height="39" rx="19.5" stroke="#747775"/>
+              <defs>
+              <clipPath id="clip0_710_6217">
+              <rect width="20" height="20" fill="white" transform="translate(10 10)"/>
+              </clipPath>
+              </defs>
+              </svg>
+              <span>Sign in with Google</span>
+            </button>
+
+            <button
+              onClick={handleGithubSignIn}
+              disabled={loading}
+              className="btn-github"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <rect x="0.5" y="0.5" width="39" height="39" rx="19.5" fill="#24292e"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M20 10C14.477 10 10 14.477 10 20C10 24.418 12.865 28.166 16.839 29.489C17.339 29.579 17.521 29.272 17.521 29.007C17.521 28.772 17.512 28.149 17.508 27.311C14.726 27.909 14.139 26.091 14.139 26.091C13.685 24.947 13.029 24.641 13.029 24.641C12.121 24.027 13.098 24.039 13.098 24.039C14.101 24.11 14.629 25.057 14.629 25.057C15.521 26.573 16.97 26.132 17.539 25.876C17.631 25.231 17.889 24.791 18.175 24.541C15.955 24.289 13.62 23.445 13.62 19.736C13.62 18.654 14.009 17.771 14.649 17.078C14.546 16.825 14.203 15.843 14.747 14.487C14.747 14.487 15.586 14.218 17.497 15.492C18.294 15.271 19.147 15.16 20 15.157C20.853 15.16 21.706 15.271 22.503 15.492C24.414 14.218 25.253 14.487 25.253 14.487C25.797 15.843 25.454 16.825 25.351 17.078C25.991 17.771 26.38 18.654 26.38 19.736C26.38 23.455 24.041 24.286 21.814 24.533C22.172 24.843 22.491 25.457 22.491 26.391C22.491 27.734 22.48 28.813 22.48 29.007C22.48 29.274 22.66 29.584 23.168 29.488C27.137 28.162 30 24.416 30 20C30 14.477 25.523 10 20 10Z" fill="white"/>
+              <rect x="0.5" y="0.5" width="39" height="39" rx="19.5" stroke="#24292e"/>
+              </svg>
+              <span>Sign in with GitHub</span>
+            </button>
+          </div>
+
 
           <div className="toggle-auth">
             {isSignUp ? (
