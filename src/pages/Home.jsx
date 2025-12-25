@@ -12,7 +12,7 @@ export default function Home({ user }) {
     rating: 1000,
     winRate: 0
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Load user stats from Firestore
   useEffect(() => {
@@ -20,8 +20,16 @@ export default function Home({ user }) {
 
     const loadStats = async () => {
       try {
+        // Set a timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+          setLoading(false);
+          console.warn('Stats loading timeout - using default values');
+        }, 5000); // 5 second timeout
+
         const userDocRef = doc(db, 'users', user.uid);
         const userDoc = await getDoc(userDocRef);
+
+        clearTimeout(timeoutId);
 
         if (userDoc.exists()) {
           const data = userDoc.data();
@@ -43,13 +51,6 @@ export default function Home({ user }) {
             email: user.email
           };
           await setDoc(userDocRef, defaultStats);
-          setStats({
-            matches: 0,
-            wins: 0,
-            losses: 0,
-            rating: 1000,
-            winRate: 0
-          });
         }
       } catch (error) {
         console.error('Error loading stats:', error);
@@ -89,16 +90,12 @@ export default function Home({ user }) {
     }
   };
 
-  if (loading) {
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading your stats...</div>;
-  }
-
   return (
     <div className="home-page">
       <div className="container">
         <div className="grid-2col">
           <MatchSearch onMatchFound={handleMatchFound} />
-          <QuickStats stats={stats} />
+          <QuickStats stats={stats} loading={loading} />
         </div>
 
         {/* How It Works Section */}
@@ -185,7 +182,7 @@ export default function Home({ user }) {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2024 CodeDuelZ. Built with ❤️ for developers.</p>
+          <p>&copy; 2026 CodeDuelZ. Built with ❤️ for developers.</p>
         </div>
       </footer>
     </div>

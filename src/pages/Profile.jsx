@@ -7,8 +7,8 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function Profile({ user }) {
   const [profileData, setProfileData] = useState({
-    name: '',
-    email: '',
+    name: user?.displayName || 'Developer',
+    email: user?.email || '',
     wins: 0,
     losses: 0,
     rating: 1000,
@@ -23,7 +23,7 @@ export default function Profile({ user }) {
   });
 
   const [editMode, setEditMode] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Load profile data from Firestore
   useEffect(() => {
@@ -31,8 +31,16 @@ export default function Profile({ user }) {
 
     const loadProfile = async () => {
       try {
+        // Set a timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+          setLoading(false);
+          console.warn('Profile loading timeout - using default values');
+        }, 5000); // 5 second timeout
+
         const userDocRef = doc(db, 'users', user.uid);
         const userDoc = await getDoc(userDocRef);
+
+        clearTimeout(timeoutId);
 
         if (userDoc.exists()) {
           const data = userDoc.data();
@@ -112,12 +120,19 @@ export default function Profile({ user }) {
     }
   };
 
-  if (loading) {
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading profile...</div>;
-  }
-
   return (
     <div className="container">
+      {loading && (
+        <div style={{ 
+          padding: '1rem', 
+          textAlign: 'center', 
+          fontSize: '0.9rem', 
+          opacity: 0.6,
+          marginBottom: '1rem'
+        }}>
+          Updating profile data...
+        </div>
+      )}
       <div className="profile-grid">
         <ProfileCard 
           profileData={profileData}

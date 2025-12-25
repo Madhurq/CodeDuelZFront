@@ -253,14 +253,14 @@ body {
   font-size: 0.95rem;
   font-family: inherit;
   transition: var(--t);
-  background: var(--surface-alt);
+  background: turquoise;
 }
 
 .input-field:focus,
 .select-field:focus {
   outline: none;
   border-color: var(--primary);
-  background: var(--surface);
+  background: lightgreen;
   box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
   transform: translateY(-1px);
 }
@@ -332,7 +332,7 @@ body {
   padding: 0.875rem;
   border-radius: var(--r-lg);
   border: 2px solid var(--border);
-  background: var(--surface);
+  background: rgba(0, 255, 255, 0.5);
   font-weight: 700;
   cursor: pointer;
   transition: var(--t);
@@ -353,8 +353,8 @@ body {
 }
 
 .btn-select:hover {
-  border-color: var(--primary);
-  background: var(--primary-light);
+  border-color: var(--primary-dark);
+  background: var(--primary);
   transform: translateY(-2px);
 }
 

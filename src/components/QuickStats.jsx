@@ -1,7 +1,7 @@
-export default function QuickStats({ stats }) {
+export default function QuickStats({ stats, loading }) {
   return (
     <div className="card">
-      <h2 className="card-title">📊 Your Performance</h2>
+      <h2 className="card-title">📊 Your Performance {loading && <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>(updating...)</span>}</h2>
       <div className="stats-grid">
         <div className="stat-box">
           <div className="stat-value">{stats.matches}</div>
