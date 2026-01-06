@@ -1,66 +1,47 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  /* Colors from App.css */
+  --color-primary: #3b82f6;
+  --color-primary-dark: #1e40af;
+  --color-primary-light: #dbeafe;
+  --color-secondary: #10b981;
+  --color-danger: #ef4444;
+
+  --color-background: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f3f4f6;
+
+  --color-border: #e5e7eb;
+
+  --color-text: #111827;
+  --color-text-secondary: #6b7280;
+
+  /* Shadows from App.css */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, .06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, .1);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, .12);
+
+  /* Radii */
+  --radius-lg: 12px;
+  --radius-md: 8px;
+}
+
+/* Base styles matching App.css body */
+body {
+  font-family: var(--font-sans);
+  background: linear-gradient(to bottom, #f5f7fa 0%, #e8edf2 100%);
+  background-attachment: fixed;
+  color: var(--color-text);
+  line-height: 1.6;
+  margin: 0;
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
+#root {
   min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }

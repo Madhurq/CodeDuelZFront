@@ -14,57 +14,55 @@ export default function EditProfiles({ profiles, loading, onSave, onCancel }) {
   };
 
   return (
-    <div className="card" style={{ marginTop: '2rem' }}>
-      <h3 style={{ marginBottom: '1rem' }}>Connect Your Accounts</h3>
-      <div className="edit-form">
-        <div className="form-group">
-          <label className="form-label">LeetCode Username</label>
+    <div className="bg-surface border border-border rounded-xl p-8 shadow-sm transition-all relative overflow-hidden hover:shadow-lg hover:-translate-y-0.5 mt-8">
+      <h3 className="text-xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary">Connect Your Accounts</h3>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <label className="text-[0.9rem] font-semibold">LeetCode Username</label>
           <input
             type="text"
-            className="input-field"
+            className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-[0.95rem] font-inherit transition-all bg-[turquoise] focus:outline-none focus:border-primary focus:bg-[lightgreen] focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:-translate-y-px"
             placeholder="username"
             value={leetcode}
             onChange={(e) => setLeetcode(e.target.value)}
           />
         </div>
 
-        <div className="form-group">
-          <label className="form-label">CodeChef Username</label>
+        <div className="flex flex-col gap-2">
+          <label className="text-[0.9rem] font-semibold">CodeChef Username</label>
           <input
             type="text"
-            className="input-field"
+            className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-[0.95rem] font-inherit transition-all bg-[turquoise] focus:outline-none focus:border-primary focus:bg-[lightgreen] focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:-translate-y-px"
             placeholder="username"
             value={codechef}
             onChange={(e) => setCodechef(e.target.value)}
           />
         </div>
 
-        <div className="form-group">
-          <label className="form-label">Codeforces Handle</label>
+        <div className="flex flex-col gap-2">
+          <label className="text-[0.9rem] font-semibold">Codeforces Handle</label>
           <input
             type="text"
-            className="input-field"
+            className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-[0.95rem] font-inherit transition-all bg-[turquoise] focus:outline-none focus:border-primary focus:bg-[lightgreen] focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:-translate-y-px"
             placeholder="handle"
             value={codeforces}
             onChange={(e) => setCodeforces(e.target.value)}
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div className="flex gap-4 pt-4">
           <button
             type="button"
-            className="btn btn-primary"
+            className="flex-1 py-3.5 px-7 rounded-lg font-bold text-[0.95rem] cursor-pointer transition-all relative overflow-hidden bg-gradient-to-br from-primary to-secondary text-white shadow-[0_4px_12px_rgba(59,130,246,0.3)] hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(59,130,246,0.4)] active:-translate-y-px disabled:opacity-60 disabled:cursor-not-allowed"
             onClick={handleSave}
             disabled={loading}
-            style={{ flex: 1 }}
           >
             {loading ? 'Saving...' : 'Save Profiles'}
           </button>
           <button
             type="button"
-            className="btn btn-secondary"
+            className="flex-1 py-3.5 px-7 rounded-lg font-bold text-[0.95rem] cursor-pointer transition-all bg-surface text-text border-2 border-border shadow-[0_2px_8px_rgba(0,0,0,0.05)] hover:bg-surface-alt hover:border-primary hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
             onClick={onCancel}
-            style={{ flex: 1 }}
           >
             Cancel
           </button>

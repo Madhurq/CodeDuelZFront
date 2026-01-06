@@ -59,40 +59,35 @@ export default function CompetitiveStats({ profiles, onAddClick }) {
     setPlatformCards(cards);
   };
 
-  if (platformCards.length === 0) {
-    return (
-      <div className="no-profiles">
-        <p>No connected profiles yet</p>
-        <button className="add-profile-btn" onClick={onAddClick}>
-          + Add Profile
-        </button>
-      </div>
-    );
-  }
+  <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6">
+    {platformCards.map((card) => (
+      <div key={card.platform} className="bg-surface border-2 border-border rounded-xl p-6 shadow-sm transition-all relative overflow-hidden group hover:-translate-y-1.5 hover:shadow-lg hover:border-transparent">
+        {/* Border gradient on hover via pseudo element */}
+        <div className="absolute -inset-[2px] bg-gradient-to-br from-primary to-secondary rounded-xl opacity-0 -z-10 transition-opacity duration-300 group-hover:opacity-100"></div>
+        {/* Inner white bg to show border */}
+        <div className="absolute inset-0 bg-surface rounded-[10px] -z-10"></div>
 
-  return (
-    <div className="platforms-grid">
-      {platformCards.map((card) => (
-        <div key={card.platform} className="platform-card">
-          <div className="platform-header">
-            <div className={`platform-icon ${card.iconClass}`}>
-              {card.icon}
-            </div>
-            <div className="platform-name">{card.platform}</div>
+        <div className="flex items-center gap-4 mb-4 pb-4 border-b border-border">
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg text-white shadow-[0_4px_12px_rgba(0,0,0,0.2)] transition-all group-hover:scale-110 group-hover:rotate-6 ${card.iconClass === 'leetcode' ? 'bg-[#fbbf24]' :
+              card.iconClass === 'codechef' ? 'bg-[#9400d3]' :
+                card.iconClass === 'codeforces' ? 'bg-[#1f95cf]' : 'bg-gray-400'
+            }`}>
+            {card.icon}
           </div>
-          <div className="platform-stats">
-            {card.stats.map((stat) => (
-              <div key={stat.label} className="platform-stat">
-                <div className="platform-stat-value">{stat.value}</div>
-                <div className="platform-stat-label">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-          <a href={card.link} target="_blank" rel="noopener noreferrer" className="platform-link">
-            View Profile →
-          </a>
+          <div className="text-[1.1rem] font-bold">{card.platform}</div>
         </div>
-      ))}
-    </div>
-  );
+        <div className="grid grid-cols-2 gap-4 mt-4 text-center">
+          {card.stats.map((stat) => (
+            <div key={stat.label}>
+              <div className="text-[1.5rem] font-bold text-primary">{stat.value}</div>
+              <div className="text-[0.8rem] text-text-secondary">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+        <a href={card.link} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-2 text-primary text-[0.9rem] font-semibold transition-all px-4 py-2 rounded-md bg-primary-light hover:bg-primary hover:text-white hover:translate-x-1">
+          View Profile →
+        </a>
+      </div>
+    ))}
+  </div>
 }

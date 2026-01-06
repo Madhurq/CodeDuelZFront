@@ -121,31 +121,25 @@ export default function Profile({ user }) {
   };
 
   return (
-    <div className="container">
+    <div className="max-w-[1200px] mx-auto p-8">
       {loading && (
-        <div style={{ 
-          padding: '1rem', 
-          textAlign: 'center', 
-          fontSize: '0.9rem', 
-          opacity: 0.6,
-          marginBottom: '1rem'
-        }}>
+        <div className="p-4 text-center text-[0.9rem] opacity-60 mb-4 animate-pulse">
           Updating profile data...
         </div>
       )}
-      <div className="profile-grid">
-        <ProfileCard 
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8">
+        <ProfileCard
           profileData={profileData}
           onEditClick={() => setEditMode(true)}
           onLogout={handleLogout}
         />
         <div>
-          <div className="platforms-header">
-            <h2 className="section-title">Competitive Stats</h2>
+          <div className="flex justify-between items-center mb-6 pb-4 border-b border-border">
+            <h2 className="text-2xl font-bold">Competitive Stats</h2>
           </div>
 
           {!editMode && (
-            <CompetitiveStats 
+            <CompetitiveStats
               profiles={profiles}
               onAddClick={() => setEditMode(true)}
             />

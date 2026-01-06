@@ -6,7 +6,6 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
-import './App.css';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -33,13 +32,7 @@ function App() {
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        fontSize: '1.2rem'
-      }}>
+      <div className="flex justify-center items-center h-screen text-xl">
         Loading...
       </div>
     );
@@ -52,8 +45,8 @@ function App() {
 
   return (
     <>
-      <Navbar 
-        currentPage={currentPage} 
+      <Navbar
+        currentPage={currentPage}
         onPageChange={setCurrentPage}
         user={user}
         onLogout={handleLogout}

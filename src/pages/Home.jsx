@@ -66,7 +66,7 @@ export default function Home({ user }) {
   const handleMatchFound = async () => {
     try {
       const userDocRef = doc(db, 'users', user.uid);
-      
+
       // Simulate win/loss (50/50 chance)
       const isWin = Math.random() > 0.5;
       const ratingChange = isWin ? 10 : -5;
@@ -91,98 +91,79 @@ export default function Home({ user }) {
   };
 
   return (
-    <div className="home-page">
-      <div className="container">
-        <div className="grid-2col">
+    <div className="min-h-screen flex flex-col">
+      <div className="max-w-[1200px] mx-auto p-8 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8">
           <MatchSearch onMatchFound={handleMatchFound} />
           <QuickStats stats={stats} loading={loading} />
         </div>
 
         {/* How It Works Section */}
-        <div className="info-section">
-          <h2 className="section-title-large">⚔️ How CodeDuelZ Works</h2>
-          <div className="feature-grid">
-            <div className="feature-card">
-              <div className="feature-icon">🎯</div>
-              <h3>1. Choose Your Challenge</h3>
-              <p>Select difficulty level and your preferred programming language. Get matched with opponents of similar skill.</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">👥</div>
-              <h3>2. Get Matched</h3>
-              <p>Our intelligent matchmaking system pairs you with a worthy opponent in real-time for a fair competition.</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">⏱️</div>
-              <h3>3. Code & Compete</h3>
-              <p>Solve challenging problems against the clock. Write clean, efficient code to outperform your opponent.</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">🏆</div>
-              <h3>4. Climb the Ranks</h3>
-              <p>Win battles to increase your rating, earn achievements, and rise through competitive ranks.</p>
-            </div>
+        <div className="mt-16 mb-12">
+          <h2 className="text-4xl font-extrabold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary relative after:content-[''] after:absolute after:-bottom-3 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-primary after:to-secondary after:rounded-sm">
+            ⚔️ How CodeDuelZ Works
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              { icon: '🎯', title: '1. Choose Your Challenge', desc: 'Select difficulty level and your preferred programming language. Get matched with opponents of similar skill.' },
+              { icon: '👥', title: '2. Get Matched', desc: 'Our intelligent matchmaking system pairs you with a worthy opponent in real-time for a fair competition.' },
+              { icon: '⏱️', title: '3. Code & Compete', desc: 'Solve challenging problems against the clock. Write clean, efficient code to outperform your opponent.' },
+              { icon: '🏆', title: '4. Climb the Ranks', desc: 'Win battles to increase your rating, earn achievements, and rise through competitive ranks.' }
+            ].map((feature, index) => (
+              <div key={index} className="bg-surface border-2 border-border rounded-xl p-8 text-center transition-all duration-300 relative overflow-hidden group hover:border-primary hover:-translate-y-2 hover:shadow-lg">
+                <div className="absolute top-0 -left-full w-full h-full bg-gradient-to-r from-transparent via-primary/5 to-transparent transition-all duration-600 group-hover:left-full"></div>
+                <div className="text-5xl mb-4 inline-block animate-bounce group-hover:animate-[spin_0.6s_ease-in-out]">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-text">{feature.title}</h3>
+                <p className="text-text-secondary leading-relaxed text-base">{feature.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Features Section */}
-        <div className="features-highlight">
-          <div className="highlight-item">
-            <div className="highlight-number">10+</div>
-            <div className="highlight-label">Programming Languages</div>
-          </div>
-          <div className="highlight-item">
-            <div className="highlight-number">500+</div>
-            <div className="highlight-label">Practice Problems</div>
-          </div>
-          <div className="highlight-item">
-            <div className="highlight-number">24/7</div>
-            <div className="highlight-label">Live Matchmaking</div>
-          </div>
-          <div className="highlight-item">
-            <div className="highlight-number">∞</div>
-            <div className="highlight-label">Learning Opportunities</div>
-          </div>
+        {/* Features Highlight */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 my-12 p-12 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl border-2 border-border">
+          {[
+            { number: '10+', label: 'Programming Languages' },
+            { number: '500+', label: 'Practice Problems' },
+            { number: '24/7', label: 'Live Matchmaking' },
+            { number: '∞', label: 'Learning Opportunities' }
+          ].map((item, index) => (
+            <div key={index} className="text-center p-6 bg-surface rounded-xl transition-all cursor-pointer hover:scale-105 hover:shadow-md">
+              <div className="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary mb-2">{item.number}</div>
+              <div className="text-sm font-semibold text-text-secondary">{item.label}</div>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="app-footer">
-        <div className="footer-content">
-          <div className="footer-section">
-            <h4>⚔️ CodeDuelZ</h4>
-            <p>The ultimate 1v1 competitive coding platform. Sharpen your skills, compete with peers, and become a coding champion.</p>
+      <footer className="mt-auto bg-gradient-to-br from-slate-800 to-slate-900 text-slate-200 py-12 border-t-4 border-primary [border-image:linear-gradient(90deg,var(--color-primary),var(--color-secondary))_1]">
+        <div className="max-w-[1200px] mx-auto px-8 grid grid-cols-1 md:grid-cols-4 gap-12 mb-8">
+          <div className="col-span-1 md:col-span-2">
+            <h4 className="text-lg font-bold mb-4 text-white">⚔️ CodeDuelZ</h4>
+            <p className="text-slate-400 leading-relaxed text-sm max-w-sm">The ultimate 1v1 competitive coding platform. Sharpen your skills, compete with peers, and become a coding champion.</p>
           </div>
-          <div className="footer-section">
-            <h4>Platform</h4>
-            <ul>
-              <li>How It Works</li>
-              <li>Leaderboard</li>
-              <li>Tournaments</li>
-              <li>Practice Arena</li>
-            </ul>
-          </div>
-          <div className="footer-section">
-            <h4>Resources</h4>
-            <ul>
-              <li>Documentation</li>
-              <li>API Reference</li>
-              <li>Community</li>
-              <li>Support</li>
-            </ul>
-          </div>
-          <div className="footer-section">
-            <h4>Connect</h4>
-            <ul>
-              <li>GitHub</li>
-              <li>Discord</li>
-              <li>Twitter</li>
-              <li>LinkedIn</li>
-            </ul>
-          </div>
+          {[
+            { title: 'Platform', links: ['How It Works', 'Leaderboard', 'Tournaments', 'Practice Arena'] },
+            { title: 'Resources', links: ['Documentation', 'API Reference', 'Community', 'Support'] },
+            { title: 'Connect', links: ['GitHub', 'Discord', 'Twitter', 'LinkedIn'] }
+          ].slice(0, 3).map((section, idx) => (
+            /* Adjusting slice if only showing specific cols, currently mapped all in App.css */
+            <div key={idx}>
+              <h4 className="text-lg font-bold mb-4 text-white">{section.title}</h4>
+              <ul className="list-none space-y-3 text-sm text-slate-400">
+                {section.links.map((link) => (
+                  <li key={link} className="hover:text-white hover:pl-1 transition-all cursor-pointer">{link}</li>
+                ))}
+              </ul>
+            </div>
+          )).slice(0, 3)}
+          {/* Note: The original CSS had 4 columns (1 big + 3 small). The map above produces 3 small columns correctly if mapped right. */}
         </div>
-        <div className="footer-bottom">
-          <p>&copy; 2026 CodeDuelZ. Built with ❤️ for developers.</p>
+        <div className="max-w-[1200px] mx-auto px-8 pt-6 border-t border-white/10 text-center">
+          <p className="text-slate-400 text-sm">&copy; 2026 CodeDuelZ. Built with ❤️ for developers.</p>
         </div>
       </footer>
     </div>
