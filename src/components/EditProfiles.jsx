@@ -14,14 +14,14 @@ export default function EditProfiles({ profiles, loading, onSave, onCancel }) {
   };
 
   return (
-    <div className="bg-surface border border-border rounded-xl p-8 shadow-sm transition-all relative overflow-hidden hover:shadow-lg hover:-translate-y-0.5 mt-8">
+    <div className="bg-surface border border-border rounded-xl p-8 shadow-sm transition-all relative overflow-hidden hover:shadow-lg hover:-translate-y-0.5 mt-8 transition-colors duration-300">
       <h3 className="text-xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary">Connect Your Accounts</h3>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <label className="text-[0.9rem] font-semibold">LeetCode Username</label>
+          <label className="text-[0.9rem] font-semibold text-text">LeetCode Username</label>
           <input
             type="text"
-            className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-[0.95rem] font-inherit transition-all bg-[turquoise] focus:outline-none focus:border-primary focus:bg-[lightgreen] focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:-translate-y-px"
+            className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-[0.95rem] font-inherit transition-all bg-surface-alt text-text focus:outline-none focus:border-primary focus:bg-primary-light focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:-translate-y-px"
             placeholder="username"
             value={leetcode}
             onChange={(e) => setLeetcode(e.target.value)}
@@ -29,10 +29,10 @@ export default function EditProfiles({ profiles, loading, onSave, onCancel }) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-[0.9rem] font-semibold">CodeChef Username</label>
+          <label className="text-[0.9rem] font-semibold text-text">CodeChef Username</label>
           <input
             type="text"
-            className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-[0.95rem] font-inherit transition-all bg-[turquoise] focus:outline-none focus:border-primary focus:bg-[lightgreen] focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:-translate-y-px"
+            className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-[0.95rem] font-inherit transition-all bg-surface-alt text-text focus:outline-none focus:border-primary focus:bg-primary-light focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:-translate-y-px"
             placeholder="username"
             value={codechef}
             onChange={(e) => setCodechef(e.target.value)}
@@ -40,10 +40,10 @@ export default function EditProfiles({ profiles, loading, onSave, onCancel }) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-[0.9rem] font-semibold">Codeforces Handle</label>
+          <label className="text-[0.9rem] font-semibold text-text">Codeforces Handle</label>
           <input
             type="text"
-            className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-[0.95rem] font-inherit transition-all bg-[turquoise] focus:outline-none focus:border-primary focus:bg-[lightgreen] focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:-translate-y-px"
+            className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-[0.95rem] font-inherit transition-all bg-surface-alt text-text focus:outline-none focus:border-primary focus:bg-primary-light focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:-translate-y-px"
             placeholder="handle"
             value={codeforces}
             onChange={(e) => setCodeforces(e.target.value)}

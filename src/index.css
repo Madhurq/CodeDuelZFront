@@ -29,17 +29,47 @@
   --radius-md: 8px;
 }
 
+/* Dark mode overrides - TRUE DARK */
+.dark {
+  --color-primary: #60a5fa;
+  --color-primary-dark: #3b82f6;
+  --color-primary-light: #1e3a5f;
+  --color-secondary: #34d399;
+  --color-danger: #f87171;
+
+  --color-background: #030712;
+  --color-surface: #111827;
+  --color-surface-alt: #1f2937;
+
+  --color-border: #374151;
+
+  --color-text: #f9fafb;
+  --color-text-secondary: #9ca3af;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, .5);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, .6);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, .7);
+}
+
 /* Base styles matching App.css body */
 body {
   font-family: var(--font-sans);
-  background: linear-gradient(to bottom, #f5f7fa 0%, #e8edf2 100%);
-  background-attachment: fixed;
+  background: var(--color-background);
   color: var(--color-text);
   line-height: 1.6;
   margin: 0;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+  background: linear-gradient(to bottom, #030712 0%, #111827 100%);
+}
+
+html:not(.dark) body {
+  background: linear-gradient(to bottom, #f5f7fa 0%, #e8edf2 100%);
 }
 
 #root {

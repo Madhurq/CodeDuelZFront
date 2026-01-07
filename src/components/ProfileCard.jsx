@@ -1,13 +1,13 @@
 export default function ProfileCard({ profileData, onEditClick, onLogout }) {
   return (
-    <div className="bg-gradient-to-br from-white to-gray-50 border-2 border-border rounded-xl p-8 h-fit shadow-md relative overflow-hidden group">
+    <div className="bg-surface border-2 border-border rounded-xl p-8 h-fit shadow-md relative overflow-hidden group transition-colors duration-300">
       {/* Background gradient effect */}
       <div className="absolute top-0 left-0 right-0 h-[120px] bg-gradient-to-br from-primary to-secondary opacity-10 z-0"></div>
 
       <div className="w-[110px] h-[110px] rounded-xl flex items-center justify-center text-[3rem] shadow-[0_8px_24px_rgba(59,130,246,0.3)] bg-gradient-to-br from-primary to-secondary text-white relative z-10 mx-auto mb-6 transition-all duration-300 group-hover:scale-105 group-hover:rotate-3 group-hover:shadow-[0_12px_32px_rgba(59,130,246,0.4)]">
         👨‍💻
       </div>
-      <h2 className="text-xl font-bold text-center mb-2">{profileData.name}</h2>
+      <h2 className="text-xl font-bold text-center mb-2 text-text">{profileData.name}</h2>
       <p className="text-[0.9rem] text-center text-text-secondary mb-6">{profileData.email}</p>
 
       <div className="flex flex-col gap-4 mb-6 pb-6 border-b border-border">
@@ -41,3 +41,4 @@ export default function ProfileCard({ profileData, onEditClick, onLogout }) {
     </div>
   );
 }
+

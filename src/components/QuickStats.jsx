@@ -1,6 +1,6 @@
 export default function QuickStats({ stats, loading }) {
   return (
-    <div className="bg-surface border border-border rounded-xl p-8 shadow-sm transition-all relative overflow-hidden hover:shadow-lg hover:-translate-y-0.5">
+    <div className="bg-surface border border-border rounded-xl p-8 shadow-sm transition-all relative overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-colors duration-300">
       {/* Top gradient border effect */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary opacity-0 transition-opacity duration-300 hover:opacity-100"></div>
 
@@ -14,7 +14,7 @@ export default function QuickStats({ stats, loading }) {
           { label: 'Rating', value: stats.rating },
           { label: 'Win Rate', value: `${stats.winRate}%`, color: stats.winRate >= 50 ? '#10b981' : '#ef4444' }
         ].map((stat, idx) => (
-          <div key={idx} className="bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl text-center border-2 border-transparent transition-all cursor-pointer relative overflow-hidden hover:border-primary hover:-translate-y-1 hover:shadow-md hover:bg-gradient-to-br hover:from-white hover:to-primary-light group">
+          <div key={idx} className="bg-surface-alt p-6 rounded-xl text-center border-2 border-transparent transition-all cursor-pointer relative overflow-hidden hover:border-primary hover:-translate-y-1 hover:shadow-md hover:bg-primary-light group transition-colors duration-300">
             {/* Radial gradient effect */}
             <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle,rgba(59,130,246,0.1)_0%,transparent_70%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
 

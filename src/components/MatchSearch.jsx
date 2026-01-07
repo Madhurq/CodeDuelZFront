@@ -26,21 +26,21 @@ export default function MatchSearch({ onMatchFound }) {
   };
 
   return (
-    <div className="bg-surface border border-border rounded-xl p-8 shadow-sm transition-all relative overflow-hidden hover:shadow-lg hover:-translate-y-0.5 group">
+    <div className="bg-surface border border-border rounded-xl p-8 shadow-sm transition-all relative overflow-hidden hover:shadow-lg hover:-translate-y-0.5 group transition-colors duration-300">
       {/* Top gradient border effect */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
 
       <h2 className="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary">🎯 Find a Match</h2>
 
       <div className="flex flex-col gap-2 mb-6">
-        <label className="text-[0.9rem] font-semibold">Select Difficulty</label>
+        <label className="text-[0.9rem] font-semibold text-text">Select Difficulty</label>
         <div className="grid grid-cols-3 gap-3">
           {['easy', 'medium', 'hard'].map((level) => (
             <button
               key={level}
               className={`relative p-3.5 rounded-lg border-2 font-bold cursor-pointer transition-all overflow-hidden ${difficulty === level
-                  ? 'bg-gradient-to-br from-primary to-secondary text-white border-primary shadow-[0_4px_12px_rgba(59,130,246,0.3)]'
-                  : 'bg-primary/5 border-border hover:border-primary-dark hover:bg-primary hover:-translate-y-0.5'
+                ? 'bg-gradient-to-br from-primary to-secondary text-white border-primary shadow-[0_4px_12px_rgba(59,130,246,0.3)]'
+                : 'bg-surface-alt text-text border-border hover:border-primary-dark hover:bg-primary-light hover:-translate-y-0.5'
                 }`}
               onClick={() => setDifficulty(level)}
               disabled={searching}
@@ -53,9 +53,9 @@ export default function MatchSearch({ onMatchFound }) {
       </div>
 
       <div className="flex flex-col gap-2 mb-6">
-        <label className="text-[0.9rem] font-semibold">Preferred Language</label>
+        <label className="text-[0.9rem] font-semibold text-text">Preferred Language</label>
         <select
-          className="p-3.5 border-2 border-border rounded-lg text-[0.95rem] font-inherit transition-all bg-surface focus:outline-none focus:border-primary focus:bg-white focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:-translate-y-px"
+          className="p-3.5 border-2 border-border rounded-lg text-[0.95rem] font-inherit transition-all bg-surface-alt text-text focus:outline-none focus:border-primary focus:bg-primary-light focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:-translate-y-px"
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
           disabled={searching}
@@ -78,7 +78,7 @@ export default function MatchSearch({ onMatchFound }) {
       </button>
 
       {matchFound && (
-        <div className="mt-6 p-6 rounded-lg border-l-4 border-secondary bg-gradient-to-br from-[#f0fdf4] to-[#dcfce7] shadow-[0_4px_12px_rgba(16,185,129,0.2)] animate-[slideIn_0.4s_ease-out]">
+        <div className="mt-6 p-6 rounded-lg border-l-4 border-secondary bg-secondary/10 shadow-[0_4px_12px_rgba(16,185,129,0.2)] animate-[slideIn_0.4s_ease-out]">
           <div className="font-bold mb-2">✅ Match Found!</div>
           <p className="m-0 mt-2 text-[0.9rem]">
             Connecting to battle arena...
