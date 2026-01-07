@@ -4,8 +4,8 @@ export default function QuickStats({ stats, loading }) {
       {/* Top gradient border effect */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary opacity-0 transition-opacity duration-300 hover:opacity-100"></div>
 
-      <h2 className="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary">
-        📊 Your Performance {loading && <span className="text-[0.8rem] opacity-60">(updating...)</span>}
+      <h2 className="text-2xl font-bold mb-6 bg-clip-text text-text-secondary bg-gradient-to-br from-primary to-secondary">
+        📊 Performance {loading && <span className="text-[0.8rem] opacity-60">(updating...)</span>}
       </h2>
       <div className="grid grid-cols-2 gap-4">
         {[

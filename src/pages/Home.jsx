@@ -112,7 +112,7 @@ export default function Home({ user }) {
             ].map((feature, index) => (
               <div key={index} className="bg-surface border-2 border-border rounded-xl p-8 text-center transition-all duration-300 relative overflow-hidden group hover:border-primary hover:-translate-y-2 hover:shadow-lg">
                 <div className="absolute top-0 -left-full w-full h-full bg-gradient-to-r from-transparent via-primary/5 to-transparent transition-all duration-600 group-hover:left-full"></div>
-                <div className="text-5xl mb-4 inline-block animate-bounce group-hover:animate-[spin_0.6s_ease-in-out]">
+                <div className="text-5xl mb-4 inline-block group-hover:animate-[spin_0.7s_ease-in-out]">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-text">{feature.title}</h3>
@@ -130,7 +130,7 @@ export default function Home({ user }) {
             { number: '24/7', label: 'Live Matchmaking' },
             { number: '∞', label: 'Learning Opportunities' }
           ].map((item, index) => (
-            <div key={index} className="text-center p-6 bg-surface rounded-xl transition-all cursor-pointer hover:scale-105 hover:shadow-md">
+            <div key={index} className="text-center p-6 bg-abc rounded-xl transition-all cursor-pointer hover:scale-110 hover:shadow-md ">
               <div className="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary mb-2">{item.number}</div>
               <div className="text-sm font-semibold text-text-secondary">{item.label}</div>
             </div>

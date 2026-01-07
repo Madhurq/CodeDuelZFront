@@ -48,11 +48,9 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout }) {
         <div className="flex items-center">
           <button
             onClick={() => onPageChange('home')}
-            className="flex items-center gap-3 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary hover:scale-105 transition-all duration-300 focus:outline-none"
+            className="flex items-center gap-3 text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary hover:scale-105 transition-all duration-300 focus:outline-none"
           >
-            <div /*className="w-[50px] h-[50px] bg-white rounded-xl flex items-center justify-center text-white shadow-[0_4px_12px_rgba(59,130,246,0.3)]"*/>
-              <img src={logo} alt="Logo" className="w-20 h-20" />
-            </div>
+            <img src={logo} alt="Logo" className="w-20 h-20" />
             CodeDuelZ
           </button>
         </div>
