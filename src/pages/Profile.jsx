@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import ProfileCard from '../components/ProfileCard';
 import CompetitiveStats from '../components/CompetitiveStats';
 import EditProfiles from '../components/EditProfiles';
-import { db } from '../config/firebase.js';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { apiGet, apiPut } from '../services/api';
+import { auth } from '../config/firebase.js';
+import { signOut } from 'firebase/auth';
 
 export default function Profile({ user }) {
   const [profileData, setProfileData] = useState({
@@ -23,68 +24,41 @@ export default function Profile({ user }) {
   });
 
   const [editMode, setEditMode] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Load profile data from Firestore
+  // Load profile data from Backend API
   useEffect(() => {
     if (!user) return;
 
     const loadProfile = async () => {
       try {
-        // Set a timeout to prevent infinite loading
-        const timeoutId = setTimeout(() => {
-          setLoading(false);
-          console.warn('Profile loading timeout - using default values');
-        }, 5000); // 5 second timeout
+        setLoading(true);
+        setError(null);
 
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
+        // Call the backend API - token is automatically attached
+        const data = await apiGet('/api/profile');
 
-        clearTimeout(timeoutId);
+        console.log('Profile loaded from API:', data);
 
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          setProfileData({
-            name: data.name || user.displayName || 'Developer',
-            email: user.email,
-            wins: data.wins || 0,
-            losses: data.losses || 0,
-            rating: data.rating || 1000,
-            rank: data.rank || '-',
-            matches: data.matches || 0
-          });
-          setProfiles({
-            leetcode: data.leetcode || '',
-            codechef: data.codechef || '',
-            codeforces: data.codeforces || ''
-          });
-        } else {
-          // Create new user document
-          const defaultData = {
-            name: user.displayName || 'Developer',
-            email: user.email,
-            wins: 0,
-            losses: 0,
-            rating: 1000,
-            matches: 0,
-            leetcode: '',
-            codechef: '',
-            codeforces: '',
-            createdAt: new Date()
-          };
-          await setDoc(userDocRef, defaultData);
-          setProfileData({
-            name: defaultData.name,
-            email: user.email,
-            wins: 0,
-            losses: 0,
-            rating: 1000,
-            rank: '-',
-            matches: 0
-          });
-        }
+        setProfileData({
+          name: data.name || user.displayName || 'Developer',
+          email: data.email || user.email,
+          wins: data.wins || 0,
+          losses: data.losses || 0,
+          rating: data.rating || 1000,
+          rank: data.rank || '-',
+          matches: data.matches || 0
+        });
+
+        setProfiles({
+          leetcode: data.leetcode || '',
+          codechef: data.codechef || '',
+          codeforces: data.codeforces || ''
+        });
       } catch (error) {
         console.error('Error loading profile:', error);
+        setError('Failed to load profile. Make sure the backend is running.');
       } finally {
         setLoading(false);
       }
@@ -95,27 +69,27 @@ export default function Profile({ user }) {
 
   const handleSaveProfiles = async (newProfiles) => {
     try {
-      const userDocRef = doc(db, 'users', user.uid);
-      await setDoc(
-        userDocRef,
-        {
-          leetcode: newProfiles.leetcode,
-          codechef: newProfiles.codechef,
-          codeforces: newProfiles.codeforces
-        },
-        { merge: true }
-      );
+      setLoading(true);
+
+      // Call the backend API to update profiles
+      await apiPut('/api/profile', {
+        leetcode: newProfiles.leetcode,
+        codechef: newProfiles.codechef,
+        codeforces: newProfiles.codeforces
+      });
+
       setProfiles(newProfiles);
       setEditMode(false);
     } catch (error) {
       console.error('Error saving profiles:', error);
+      setError('Failed to save profiles.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleLogout = async () => {
     if (confirm('Are you sure you want to logout?')) {
-      const { signOut } = await import('firebase/auth');
-      const { auth } = await import('../config/firebase.js');
       await signOut(auth);
     }
   };
@@ -124,9 +98,16 @@ export default function Profile({ user }) {
     <div className="max-w-[1200px] mx-auto p-8">
       {loading && (
         <div className="p-4 text-center text-[0.9rem] opacity-60 mb-4 animate-pulse">
-          Updating profile data...
+          Loading profile data...
         </div>
       )}
+
+      {error && (
+        <div className="p-4 text-center text-red-500 mb-4 bg-red-500/10 rounded-lg">
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8">
         <ProfileCard
           profileData={profileData}
@@ -148,7 +129,7 @@ export default function Profile({ user }) {
           {editMode && (
             <EditProfiles
               profiles={profiles}
-              loading={false}
+              loading={loading}
               onSave={handleSaveProfiles}
               onCancel={() => setEditMode(false)}
             />
@@ -158,3 +139,4 @@ export default function Profile({ user }) {
     </div>
   );
 }
+
