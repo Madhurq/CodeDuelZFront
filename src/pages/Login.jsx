@@ -6,7 +6,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
-  GithubAuthProvider
+  GithubAuthProvider,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 
 
@@ -19,6 +20,9 @@ export default function Login() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSuccess, setResetSuccess] = useState('');
 
   const handleEmailAuth = async (e) => {
     e.preventDefault();
@@ -59,6 +63,23 @@ export default function Login() {
       await signInWithPopup(auth, githubProvider);
     } catch (err) {
       setError(err.message || 'GitHub sign-in failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setError('');
+    setResetSuccess('');
+    setLoading(true);
+
+    try {
+      await sendPasswordResetEmail(auth, resetEmail);
+      setResetSuccess('Password reset email sent! Check your inbox if that account is registered.');
+      setResetEmail('');
+    } catch (err) {
+      setError(err.message || 'Failed to send password reset email');
     } finally {
       setLoading(false);
     }
@@ -142,10 +163,76 @@ export default function Login() {
               />
             </div>
 
+            {!isSignUp && (
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForgotPassword(true);
+                    setResetEmail(email);
+                    setError('');
+                    setResetSuccess('');
+                  }}
+                  className="text-sm text-primary hover:underline hover:text-primary-dark transition-colors"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+            )}
+
             <button type="submit" disabled={loading} className="w-full py-3.5 px-4 rounded-lg font-bold text-white bg-gradient-to-br from-primary to-secondary shadow-[0_4px_12px_rgba(59,130,246,0.3)] hover:shadow-[0_8px_24px_rgba(59,130,246,0.4)] hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed">
               {loading ? 'Loading...' : (isSignUp ? 'Create Account' : 'Sign In')}
             </button>
           </form>
+
+          {/* Forgot Password Modal */}
+          {showForgotPassword && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <div className="bg-surface p-8 rounded-2xl shadow-xl border border-border max-w-md w-full">
+                <h3 className="text-2xl font-bold text-text mb-4">Reset Password</h3>
+                <p className="text-text-secondary mb-6">Enter your email address and we'll send you a link to reset your password (if you have an account).</p>
+
+                {error && <div className="bg-red-50 border-l-4 border-danger p-4 rounded-md mb-4 text-red-700 text-sm font-semibold">{error}</div>}
+                {resetSuccess && <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-md mb-4 text-green-700 text-sm font-semibold">{resetSuccess}</div>}
+
+                <form onSubmit={handleForgotPassword} className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-semibold text-text">Email</label>
+                    <input
+                      type="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      required
+                      disabled={loading}
+                      className="w-full px-4 py-3 border-2 border-border rounded-lg text-base transition-all bg-[turquoise] focus:outline-none focus:border-primary focus:bg-[lightgreen] focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:-translate-y-px"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 mt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowForgotPassword(false);
+                        setError('');
+                        setResetSuccess('');
+                      }}
+                      className="flex-1 py-3 px-4 rounded-lg font-bold text-text bg-surface border-2 border-border hover:bg-surface-alt transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="flex-1 py-3 px-4 rounded-lg font-bold text-white bg-gradient-to-br from-primary to-secondary shadow-[0_4px_12px_rgba(59,130,246,0.3)] hover:shadow-[0_8px_24px_rgba(59,130,246,0.4)] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {loading ? 'Sending...' : 'Send Reset Link'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center my-8 text-sm text-text-secondary before:flex-1 before:border-t before:border-border before:mr-4 after:flex-1 after:border-t after:border-border after:ml-4">
             <span>OR</span>
