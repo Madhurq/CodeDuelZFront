@@ -5,12 +5,15 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
+import Leaderboard from './pages/Leaderboard';
+import UserProfile from './pages/UserProfile';
 import Login from './pages/Login';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -28,6 +31,16 @@ function App() {
     } catch (error) {
       console.error('Logout error:', error);
     }
+  };
+
+  const handleViewUserProfile = (userId) => {
+    setSelectedUserId(userId);
+    setCurrentPage('user-profile');
+  };
+
+  const handleBackToLeaderboard = () => {
+    setSelectedUserId(null);
+    setCurrentPage('leaderboard');
   };
 
   if (loading) {
@@ -53,8 +66,13 @@ function App() {
       />
       {currentPage === 'home' && <Home user={user} />}
       {currentPage === 'profile' && <Profile user={user} />}
+      {currentPage === 'leaderboard' && <Leaderboard onViewProfile={handleViewUserProfile} />}
+      {currentPage === 'user-profile' && (
+        <UserProfile userId={selectedUserId} onBack={handleBackToLeaderboard} />
+      )}
     </>
   );
 }
 
 export default App;
+

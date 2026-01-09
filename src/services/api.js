@@ -71,3 +71,35 @@ export async function apiPut(url, data) {
 
     return response.json();
 }
+
+/**
+ * Get the leaderboard (top 10 players) - no authentication required
+ */
+export async function getLeaderboard() {
+    const response = await fetch('/leaderboard', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+    }
+
+    return response.json();
+}
+
+/**
+ * Get a user's public profile by ID - no authentication required
+ */
+export async function getPublicProfile(userId) {
+    const response = await fetch(`/profile/${userId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+    }
+
+    return response.json();
+}

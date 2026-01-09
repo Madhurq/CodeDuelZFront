@@ -37,24 +37,24 @@ export default function Profile({ user }) {
         setError(null);
 
         // Call the backend API - token is automatically attached
-        const data = await apiGet('/api/profile');
+        const data = await apiGet('/profile');
 
         console.log('Profile loaded from API:', data);
 
         setProfileData({
-          name: data.name || user.displayName || 'Developer',
+          name: data.userName || user.displayName || 'Developer',
           email: data.email || user.email,
           wins: data.wins || 0,
           losses: data.losses || 0,
           rating: data.rating || 1000,
           rank: data.rank || '-',
-          matches: data.matches || 0
+          matches: data.totalMatches || 0
         });
 
         setProfiles({
-          leetcode: data.leetcode || '',
-          codechef: data.codechef || '',
-          codeforces: data.codeforces || ''
+          leetcode: data.leetcodeUsername || '',
+          codechef: data.codechefUsername || '',
+          codeforces: data.codeforcesHandle || ''
         });
       } catch (error) {
         console.error('Error loading profile:', error);
@@ -72,10 +72,10 @@ export default function Profile({ user }) {
       setLoading(true);
 
       // Call the backend API to update profiles
-      await apiPut('/api/profile', {
-        leetcode: newProfiles.leetcode,
-        codechef: newProfiles.codechef,
-        codeforces: newProfiles.codeforces
+      await apiPut('/profile', {
+        leetcodeUsername: newProfiles.leetcode,
+        codechefUsername: newProfiles.codechef,
+        codeforcesHandle: newProfiles.codeforces
       });
 
       setProfiles(newProfiles);
