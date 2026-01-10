@@ -20,7 +20,9 @@ export default function Profile({ user }) {
   const [profiles, setProfiles] = useState({
     leetcode: '',
     codechef: '',
-    codeforces: ''
+    codeforces: '',
+    bio: '',
+    avatar: ''
   });
 
   const [editMode, setEditMode] = useState(false);
@@ -54,7 +56,9 @@ export default function Profile({ user }) {
         setProfiles({
           leetcode: data.leetcodeUsername || '',
           codechef: data.codechefUsername || '',
-          codeforces: data.codeforcesHandle || ''
+          codeforces: data.codeforcesHandle || '',
+          bio: data.bio || '',
+          avatar: data.avatar || ''
         });
       } catch (error) {
         console.error('Error loading profile:', error);
@@ -75,7 +79,9 @@ export default function Profile({ user }) {
       await apiPut('/profile', {
         leetcodeUsername: newProfiles.leetcode,
         codechefUsername: newProfiles.codechef,
-        codeforcesHandle: newProfiles.codeforces
+        codeforcesHandle: newProfiles.codeforces,
+        bio: newProfiles.bio,
+        avatar: newProfiles.avatar
       });
 
       setProfiles(newProfiles);
@@ -84,6 +90,45 @@ export default function Profile({ user }) {
       console.error('Error saving profiles:', error);
       setError('Failed to save profiles.');
     } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle avatar change - converts file to base64 and saves immediately
+  const handleAvatarChange = async (file) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Convert file to base64 data URL
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Avatar = reader.result;
+
+        try {
+          // Save avatar immediately to backend
+          await apiPut('/profile', {
+            avatar: base64Avatar
+          });
+
+          // Update local state
+          setProfiles(prev => ({ ...prev, avatar: base64Avatar }));
+          setProfileData(prev => ({ ...prev, avatar: base64Avatar }));
+        } catch (err) {
+          console.error('Error saving avatar:', err);
+          setError('Failed to save avatar.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      reader.onerror = () => {
+        setError('Failed to read image file.');
+        setLoading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Error processing avatar:', err);
+      setError('Failed to process avatar.');
       setLoading(false);
     }
   };
@@ -110,9 +155,10 @@ export default function Profile({ user }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8">
         <ProfileCard
-          profileData={profileData}
+          profileData={{ ...profileData, avatar: profiles.avatar, bio: profiles.bio }}
           onEditClick={() => setEditMode(true)}
           onLogout={handleLogout}
+          onAvatarChange={handleAvatarChange}
         />
         <div>
           <div className="flex justify-between items-center mb-6 pb-4 border-b border-border">

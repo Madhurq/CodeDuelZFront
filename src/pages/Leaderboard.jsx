@@ -65,7 +65,7 @@ export default function Leaderboard({ onViewProfile }) {
         <div className="max-w-[900px] mx-auto p-8">
             {/* Header */}
             <div className="text-center mb-12">
-                <h1 className="text-4xl font-extrabold mb-3 bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary">
+                <h1 className="text-4xl font-extrabold mb-3 bg-clip-text text-text-secondary bg-gradient-to-br from-primary to-secondary">
                     🏆 Leaderboard
                 </h1>
                 <p className="text-text-secondary text-lg">Top players ranked by rating</p>
