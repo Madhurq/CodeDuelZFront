@@ -1,65 +1,41 @@
 import { useState, useEffect, useCallback } from 'react';
 import Editor from '@monaco-editor/react';
-
-// Sample problem for demonstration
-const SAMPLE_PROBLEM = {
-    title: "Two Sum",
-    difficulty: "Easy",
-    description: `Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
-
-You may assume that each input would have exactly one solution, and you may not use the same element twice.
-
-You can return the answer in any order.`,
-    examples: [
-        {
-            input: "nums = [2,7,11,15], target = 9",
-            output: "[0,1]",
-            explanation: "Because nums[0] + nums[1] == 9, we return [0, 1]."
-        },
-        {
-            input: "nums = [3,2,4], target = 6",
-            output: "[1,2]",
-            explanation: ""
-        }
-    ],
-    constraints: [
-        "2 <= nums.length <= 10⁴",
-        "-10⁹ <= nums[i] <= 10⁹",
-        "-10⁹ <= target <= 10⁹",
-        "Only one valid answer exists."
-    ]
-};
+import { getRandomProblemWithStatement } from '../services/codeforces';
 
 const STARTER_CODE = {
-    javascript: `function twoSum(nums, target) {
-  // Write your solution here
-  
+    javascript: `// Write your solution here
+function solve(input) {
+    
 }`,
-    python: `def two_sum(nums, target):
-    # Write your solution here
+    python: `# Write your solution here
+def solve(input):
     pass`,
-    java: `class Solution {
-    public int[] twoSum(int[] nums, int target) {
+    java: `import java.util.*;
+
+public class Solution {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
         // Write your solution here
-        return new int[]{};
     }
 }`,
-    cpp: `class Solution {
-public:
-    vector<int> twoSum(vector<int>& nums, int target) {
-        // Write your solution here
-        return {};
-    }
-};`,
-    go: `func twoSum(nums []int, target int) []int {
+    cpp: `#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
     // Write your solution here
-    return []int{}
+    return 0;
 }`,
-    rust: `impl Solution {
-    pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {
-        // Write your solution here
-        vec![]
-    }
+    go: `package main
+
+import "fmt"
+
+func main() {
+    // Write your solution here
+}`,
+    rust: `use std::io;
+
+fn main() {
+    // Write your solution here
 }`
 };
 
@@ -74,15 +50,39 @@ const LANGUAGE_MAP = {
 
 export default function MatchArena({ matchSettings, onMatchEnd, user }) {
     const [code, setCode] = useState('');
-    const [language, setLanguage] = useState(matchSettings?.language || 'javascript');
+    const [language, setLanguage] = useState(matchSettings?.language || 'cpp');
     const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes
     const [testResults, setTestResults] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [matchStatus, setMatchStatus] = useState('in_progress'); // in_progress, won, lost
+    const [matchStatus, setMatchStatus] = useState('in_progress');
+
+    // Problem state - fetched from Codeforces
+    const [problem, setProblem] = useState(null);
+    const [problemLoading, setProblemLoading] = useState(true);
+    const [problemError, setProblemError] = useState(null);
+
+    // Fetch problem on mount
+    useEffect(() => {
+        const fetchProblem = async () => {
+            try {
+                setProblemLoading(true);
+                setProblemError(null);
+                const difficulty = matchSettings?.difficulty || 'medium';
+                const fetchedProblem = await getRandomProblemWithStatement(difficulty);
+                setProblem(fetchedProblem);
+            } catch (error) {
+                console.error('Error fetching problem:', error);
+                setProblemError('Failed to load problem. Please try again.');
+            } finally {
+                setProblemLoading(false);
+            }
+        };
+        fetchProblem();
+    }, [matchSettings?.difficulty]);
 
     // Initialize code with starter template
     useEffect(() => {
-        setCode(STARTER_CODE[language] || STARTER_CODE.javascript);
+        setCode(STARTER_CODE[language] || STARTER_CODE.cpp);
     }, [language]);
 
     // Timer countdown
@@ -150,8 +150,8 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                 <div className="flex items-center gap-4">
                     <h1 className="text-xl font-bold text-text">⚔️ Code Battle</h1>
                     <span className={`px-3 py-1 rounded-full text-sm font-semibold ${matchSettings?.difficulty === 'easy' ? 'bg-green-500/20 text-green-400' :
-                            matchSettings?.difficulty === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
-                                'bg-red-500/20 text-red-400'
+                        matchSettings?.difficulty === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                            'bg-red-500/20 text-red-400'
                         }`}>
                         {matchSettings?.difficulty?.charAt(0).toUpperCase() + matchSettings?.difficulty?.slice(1) || 'Medium'}
                     </span>
@@ -176,48 +176,102 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
             <div className="flex-1 flex overflow-hidden">
                 {/* Problem Panel */}
                 <div className="w-[400px] bg-surface border-r border-border overflow-y-auto p-6">
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-bold text-text mb-2">{SAMPLE_PROBLEM.title}</h2>
-                        <span className="px-2 py-1 rounded text-xs font-semibold bg-green-500/20 text-green-400">
-                            {SAMPLE_PROBLEM.difficulty}
-                        </span>
-                    </div>
-
-                    <div className="prose prose-invert max-w-none">
-                        <p className="text-text-secondary whitespace-pre-line leading-relaxed">
-                            {SAMPLE_PROBLEM.description}
-                        </p>
-
-                        <div className="mt-6">
-                            <h3 className="text-lg font-semibold text-text mb-3">Examples</h3>
-                            {SAMPLE_PROBLEM.examples.map((example, idx) => (
-                                <div key={idx} className="bg-surface-alt rounded-lg p-4 mb-3 border border-border">
-                                    <div className="mb-2">
-                                        <span className="text-text-secondary text-sm">Input: </span>
-                                        <code className="text-primary">{example.input}</code>
-                                    </div>
-                                    <div className="mb-2">
-                                        <span className="text-text-secondary text-sm">Output: </span>
-                                        <code className="text-secondary">{example.output}</code>
-                                    </div>
-                                    {example.explanation && (
-                                        <div className="text-text-secondary text-sm mt-2">
-                                            <strong>Explanation:</strong> {example.explanation}
-                                        </div>
-                                    )}
+                    {problemLoading ? (
+                        <div className="flex items-center justify-center h-full">
+                            <div className="text-center">
+                                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                                <p className="text-text-secondary">Loading problem...</p>
+                            </div>
+                        </div>
+                    ) : problemError ? (
+                        <div className="flex items-center justify-center h-full">
+                            <div className="text-center">
+                                <p className="text-red-400 mb-4">{problemError}</p>
+                                <button
+                                    onClick={() => window.location.reload()}
+                                    className="px-4 py-2 bg-primary rounded-lg text-white"
+                                >
+                                    Retry
+                                </button>
+                            </div>
+                        </div>
+                    ) : problem ? (
+                        <>
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-bold text-text mb-2">{problem.title}</h2>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <span className={`px-2 py-1 rounded text-xs font-semibold ${problem.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
+                                            problem.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                problem.difficulty === 'Hard' ? 'bg-red-500/20 text-red-400' :
+                                                    'bg-purple-500/20 text-purple-400'
+                                        }`}>
+                                        {problem.difficulty} ({problem.rating})
+                                    </span>
+                                    <a
+                                        href={problem.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-primary text-xs hover:underline"
+                                    >
+                                        {problem.id} ↗
+                                    </a>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
 
-                        <div className="mt-6">
-                            <h3 className="text-lg font-semibold text-text mb-3">Constraints</h3>
-                            <ul className="list-disc list-inside space-y-1">
-                                {SAMPLE_PROBLEM.constraints.map((constraint, idx) => (
-                                    <li key={idx} className="text-text-secondary text-sm">{constraint}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
+                            <div className="prose prose-invert max-w-none space-y-4">
+                                {/* Constraints (time/memory) */}
+                                {problem.constraints && problem.constraints.length > 0 && (
+                                    <div className="flex flex-wrap gap-3 text-xs text-text-secondary">
+                                        {problem.constraints.map((c, idx) => (
+                                            <span key={idx} className="px-2 py-1 bg-surface-alt rounded border border-border">
+                                                {c}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Problem Description */}
+                                {problem.description && (
+                                    <div className="text-text-secondary text-sm leading-relaxed whitespace-pre-wrap">
+                                        {problem.description}
+                                    </div>
+                                )}
+
+                                {/* Examples */}
+                                {problem.examples && problem.examples.length > 0 && (
+                                    <div className="mt-4">
+                                        <h3 className="text-lg font-semibold text-text mb-3">Examples</h3>
+                                        {problem.examples.map((example, idx) => (
+                                            <div key={idx} className="bg-surface-alt rounded-lg p-4 mb-3 border border-border">
+                                                <div className="mb-3">
+                                                    <span className="text-text-secondary text-xs font-semibold block mb-1">Input:</span>
+                                                    <pre className="text-primary text-sm bg-surface p-2 rounded overflow-x-auto">{example.input}</pre>
+                                                </div>
+                                                <div>
+                                                    <span className="text-text-secondary text-xs font-semibold block mb-1">Output:</span>
+                                                    <pre className="text-secondary text-sm bg-surface p-2 rounded overflow-x-auto">{example.output}</pre>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Tags */}
+                                {problem.tags && problem.tags.length > 0 && (
+                                    <div className="mt-4 pt-4 border-t border-border">
+                                        <h3 className="text-xs font-semibold text-text-secondary mb-2">Topics</h3>
+                                        <div className="flex flex-wrap gap-1">
+                                            {problem.tags.map((tag, idx) => (
+                                                <span key={idx} className="px-2 py-0.5 bg-surface-alt rounded text-xs text-text-secondary border border-border">
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    ) : null}
                 </div>
 
                 {/* Editor Panel */}
