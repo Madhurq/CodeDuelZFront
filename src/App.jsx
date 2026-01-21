@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Leaderboard from './pages/Leaderboard';
 import UserProfile from './pages/UserProfile';
+import MatchArena from './pages/MatchArena';
 import Login from './pages/Login';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [matchSettings, setMatchSettings] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -43,6 +45,17 @@ function App() {
     setCurrentPage('leaderboard');
   };
 
+  const handleStartMatch = (settings) => {
+    setMatchSettings(settings);
+    setCurrentPage('match-arena');
+  };
+
+  const handleMatchEnd = (won) => {
+    setMatchSettings(null);
+    setCurrentPage('home');
+    // TODO: Update user stats based on win/loss
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen text-xl">
@@ -56,19 +69,27 @@ function App() {
     return <Login />;
   }
 
+  // Hide navbar during match
+  const showNavbar = currentPage !== 'match-arena';
+
   return (
     <>
-      <Navbar
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-        user={user}
-        onLogout={handleLogout}
-      />
-      {currentPage === 'home' && <Home user={user} />}
+      {showNavbar && (
+        <Navbar
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          user={user}
+          onLogout={handleLogout}
+        />
+      )}
+      {currentPage === 'home' && <Home user={user} onStartMatch={handleStartMatch} />}
       {currentPage === 'profile' && <Profile user={user} />}
       {currentPage === 'leaderboard' && <Leaderboard onViewProfile={handleViewUserProfile} />}
       {currentPage === 'user-profile' && (
         <UserProfile userId={selectedUserId} onBack={handleBackToLeaderboard} />
+      )}
+      {currentPage === 'match-arena' && (
+        <MatchArena matchSettings={matchSettings} onMatchEnd={handleMatchEnd} user={user} />
       )}
     </>
   );

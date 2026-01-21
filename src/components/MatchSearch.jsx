@@ -14,14 +14,14 @@ export default function MatchSearch({ onMatchFound }) {
     setTimeout(() => {
       setSearching(false);
       setMatchFound(true);
-      if (onMatchFound) {
-        onMatchFound();
-      }
 
-      // Reset after showing result
+      // Pass match settings to parent, then navigate after brief display
       setTimeout(() => {
+        if (onMatchFound) {
+          onMatchFound({ difficulty, language });
+        }
         setMatchFound(false);
-      }, 3000);
+      }, 1500);
     }, 2000);
   };
 

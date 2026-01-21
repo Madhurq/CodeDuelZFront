@@ -4,7 +4,7 @@ import QuickStats from '../components/QuickStats';
 import { db } from '../config/firebase.js';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
-export default function Home({ user }) {
+export default function Home({ user, onStartMatch }) {
   const [stats, setStats] = useState({
     matches: 0,
     wins: 0,
@@ -62,31 +62,10 @@ export default function Home({ user }) {
     loadStats();
   }, [user]);
 
-  // Update stats when match is found
-  const handleMatchFound = async () => {
-    try {
-      const userDocRef = doc(db, 'users', user.uid);
-
-      // Simulate win/loss (50/50 chance)
-      const isWin = Math.random() > 0.5;
-      const ratingChange = isWin ? 10 : -5;
-
-      const newStats = {
-        matches: stats.matches + 1,
-        wins: isWin ? stats.wins + 1 : stats.wins,
-        losses: !isWin ? stats.losses + 1 : stats.losses,
-        rating: Math.max(0, stats.rating + ratingChange),
-        winRate: 0
-      };
-
-      // Calculate win rate
-      newStats.winRate = Math.round((newStats.wins / newStats.matches) * 100);
-
-      // Update Firestore
-      await setDoc(userDocRef, newStats, { merge: true });
-      setStats(newStats);
-    } catch (error) {
-      console.error('Error updating stats:', error);
+  // Handle match found - navigate to arena
+  const handleMatchFound = (settings) => {
+    if (onStartMatch) {
+      onStartMatch(settings);
     }
   };
 
