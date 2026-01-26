@@ -30,8 +30,9 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      setShowLogin(false);
       setCurrentPage('home');
+      await signOut(auth);
     } catch (error) {
       console.error('Logout error:', error);
     }
