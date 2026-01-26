@@ -9,6 +9,7 @@ import Leaderboard from './pages/Leaderboard';
 import UserProfile from './pages/UserProfile';
 import MatchArena from './pages/MatchArena';
 import Login from './pages/Login';
+import LandingPage from './pages/LandingPage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -16,6 +17,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [matchSettings, setMatchSettings] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -64,9 +66,12 @@ function App() {
     );
   }
 
-  // Show login if not authenticated
+  // Show login/landing if not authenticated
   if (!user) {
-    return <Login />;
+    if (showLogin) {
+      return <Login onBack={() => setShowLogin(false)} />;
+    }
+    return <LandingPage onLoginClick={() => setShowLogin(true)} />;
   }
 
   // Hide navbar during match

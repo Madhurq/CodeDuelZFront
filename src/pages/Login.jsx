@@ -14,7 +14,7 @@ import {
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
 
-export default function Login() {
+export default function Login({ onBack }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -86,9 +86,9 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex bg-background">
-      {/* Left Side - Aesthetic Visual */}
-      <div className="hidden lg:flex w-1/2 bg-slate-900 text-white flex-col justify-center items-center p-12 relative overflow-hidden">
+    <div className="min-h-screen flex bg-background relative overflow-x-hidden">
+      {/* Visual Side - Starts Left, Moves Right on SignUp */}
+      <div className={`hidden lg:flex w-1/2 bg-slate-900 text-white flex-col justify-center items-center p-12 relative overflow-hidden transition-transform duration-700 ease-in-out z-10 ${isSignUp ? 'translate-x-full' : 'translate-x-0'}`}>
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 z-0"></div>
 
@@ -125,12 +125,24 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right Side - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
+      {/* Form Side - Starts Right, Moves Left on SignUp */}
+      <div className={`w-full lg:w-1/2 flex items-center justify-center p-8 bg-background transition-transform duration-700 ease-in-out z-0 ${isSignUp ? 'lg:-translate-x-full' : 'translate-x-0'}`}>
         <div className="w-full max-w-md bg-surface p-10 rounded-2xl shadow-xl border border-border">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-extrabold text-text mb-2">Welcome Back</h2>
-            <p className="text-sm text-text-secondary">Sign in to continue your coding journey</p>
+          <div className="text-center mb-10 relative">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="absolute left-0 top-0 text-gray-400 hover:text-primary transition-colors flex items-center gap-1 text-sm font-medium"
+              >
+                ← Back
+              </button>
+            )}
+            <h2 className="text-3xl font-extrabold text-text mb-2 pt-6">
+              {isSignUp ? 'Join the Battle' : 'Welcome Back'}
+            </h2>
+            <p className="text-sm text-text-secondary">
+              {isSignUp ? 'Create your account to start competing' : 'Sign in to continue your coding journey'}
+            </p>
           </div>
 
           {error && <div className="bg-red-50 border-l-4 border-danger p-4 rounded-md mb-6 text-red-700 text-sm font-semibold">{error}</div>}
