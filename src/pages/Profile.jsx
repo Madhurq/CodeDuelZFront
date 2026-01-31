@@ -25,6 +25,8 @@ export default function Profile({ user }) {
     avatar: ''
   });
 
+  const [stats, setStats] = useState(null);
+
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -60,6 +62,15 @@ export default function Profile({ user }) {
           bio: data.bio || '',
           avatar: data.avatar || ''
         });
+
+        // Fetch external stats
+        try {
+          const statsData = await apiGet('/external-stats');
+          setStats(statsData);
+        } catch (err) {
+          console.error('Error loading external stats:', err);
+          // Don't fail the whole page if stats fail
+        }
       } catch (error) {
         console.error('Error loading profile:', error);
         setError('Failed to load profile. Make sure the backend is running.');
@@ -168,6 +179,7 @@ export default function Profile({ user }) {
           {!editMode && (
             <CompetitiveStats
               profiles={profiles}
+              stats={stats}
               onAddClick={() => setEditMode(true)}
             />
           )}

@@ -1,57 +1,60 @@
 import { useState, useEffect } from 'react';
 
-export default function CompetitiveStats({ profiles, onAddClick }) {
+export default function CompetitiveStats({ profiles, stats, onAddClick }) {
   const [platformCards, setPlatformCards] = useState([]);
 
   useEffect(() => {
     loadPlatformData();
-  }, [profiles]);
+  }, [profiles, stats]);
 
   const loadPlatformData = () => {
     const cards = [];
 
-    // Static data for now - you can connect to APIs later
+    // LeetCode - using real data from API
     if (profiles.leetcode) {
+      const lc = stats?.leetCode;
       cards.push({
         platform: 'LeetCode',
         icon: 'LC',
         iconClass: 'leetcode',
-        stats: [
-          { label: 'Solved', value: 247 },
-          { label: 'Easy', value: 89 },
-          { label: 'Medium', value: 132 },
-          { label: 'Hard', value: 26 }
-        ],
+        stats: lc ? [
+          { label: 'Solved', value: lc.totalSolved },
+          { label: 'Easy', value: lc.easySolved },
+          { label: 'Medium', value: lc.mediumSolved },
+          { label: 'Hard', value: lc.hardSolved }
+        ] : [{ label: 'Solved', value: '-' }, { label: 'Easy', value: '-' }, { label: 'Medium', value: '-' }, { label: 'Hard', value: '-' }],
         link: `https://leetcode.com/${profiles.leetcode}`
       });
     }
 
+    // CodeChef - using real data from API
     if (profiles.codechef) {
+      const cc = stats?.codeChef;
       cards.push({
         platform: 'CodeChef',
         icon: 'CC',
         iconClass: 'codechef',
-        stats: [
-          { label: 'Rating', value: 1847 },
-          { label: 'Stars', value: '4★' },
-          { label: 'Global Rank', value: '12,453' },
-          { label: 'Country Rank', value: '2,341' }
-        ],
+        stats: cc ? [
+          { label: 'Rating', value: cc.currentRating || '-' },
+          { label: 'Stars', value: cc.stars || '-' }
+        ] : [{ label: 'Rating', value: '-' }, { label: 'Stars', value: '-' }],
         link: `https://www.codechef.com/users/${profiles.codechef}`
       });
     }
 
+    // Codeforces - using real data from API
     if (profiles.codeforces) {
+      const cf = stats?.codeforces;
       cards.push({
         platform: 'Codeforces',
         icon: 'CF',
         iconClass: 'codeforces',
-        stats: [
-          { label: 'Rating', value: 1523 },
-          { label: 'Max Rating', value: 1682 },
-          { label: 'Rank', value: 'Specialist' },
-          { label: 'Contests', value: 45 }
-        ],
+        stats: cf ? [
+          { label: 'Rating', value: cf.rating },
+          { label: 'Max Rating', value: cf.maxRating },
+          { label: 'Rank', value: cf.rank || '-' },
+          { label: 'Contribution', value: cf.contribution }
+        ] : [{ label: 'Rating', value: '-' }, { label: 'Max Rating', value: '-' }, { label: 'Rank', value: '-' }, { label: 'Contribution', value: '-' }],
         link: `https://codeforces.com/profile/${profiles.codeforces}`
       });
     }
