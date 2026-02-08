@@ -1,7 +1,9 @@
 import { Client } from '@stomp/stompjs';
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-const WS_URL = 'ws://localhost:8080/ws';
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+const wsBaseUrl = apiBaseUrl.replace(/^http/, 'ws');
+const WS_URL = `${wsBaseUrl}/ws`;
 
 export function useWebSocket(username) {
     const [connected, setConnected] = useState(false);

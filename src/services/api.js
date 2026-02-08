@@ -1,4 +1,4 @@
-import { auth } from '../config/firebase';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 /**
  * Makes an authenticated API request with Firebase ID token.
@@ -21,7 +21,7 @@ export async function authenticatedFetch(url, options = {}) {
         ...options.headers,
     };
 
-    return fetch(url, {
+    return fetch(`${BASE_URL}${url}`, {
         ...options,
         headers,
     });
@@ -76,7 +76,7 @@ export async function apiPut(url, data) {
  * Get the leaderboard (top 10 players) - no authentication required
  */
 export async function getLeaderboard() {
-    const response = await fetch('/leaderboard', {
+    const response = await fetch(`${BASE_URL}/leaderboard`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
     });
@@ -92,7 +92,7 @@ export async function getLeaderboard() {
  * Get a user's public profile by ID - no authentication required
  */
 export async function getPublicProfile(userId) {
-    const response = await fetch(`/profile/${userId}`, {
+    const response = await fetch(`${BASE_URL}/profile/${userId}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
     });
