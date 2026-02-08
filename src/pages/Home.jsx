@@ -73,7 +73,7 @@ export default function Home({ user, onStartMatch }) {
     <div className="min-h-screen flex flex-col">
       <div className="max-w-[1200px] mx-auto p-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8">
-          <MatchSearch onMatchFound={handleMatchFound} />
+          <MatchSearch onMatchFound={handleMatchFound} username={user?.email?.split('@')[0]} />
           <QuickStats stats={stats} loading={loading} />
         </div>
 

@@ -1,88 +1,106 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useWebSocket } from '../hooks/useWebSocket';
 
-export default function MatchSearch({ onMatchFound }) {
+export default function MatchSearch({ onMatchFound, username }) {
   const [difficulty, setDifficulty] = useState('easy');
-  const [language, setLanguage] = useState('javascript');
+  const [language, setLanguage] = useState('cpp');
+  const { connected, matchData, joinQueue, leaveQueue, clearMatchData } = useWebSocket(username);
   const [searching, setSearching] = useState(false);
-  const [matchFound, setMatchFound] = useState(false);
+  const [searchTime, setSearchTime] = useState(0);
+
+  // Search timer
+  useEffect(() => {
+    if (!searching) {
+      setSearchTime(0);
+      return;
+    }
+    const timer = setInterval(() => setSearchTime(t => t + 1), 1000);
+    return () => clearInterval(timer);
+  }, [searching]);
+
+  useEffect(() => {
+    if (matchData) {
+      setSearching(false);
+      if (onMatchFound) {
+        onMatchFound({ ...matchData, difficulty, language });
+      }
+      clearMatchData();
+    }
+  }, [matchData, onMatchFound, difficulty, language, clearMatchData]);
 
   const handleSearch = () => {
+    if (!connected) return;
     setSearching(true);
-    setMatchFound(false);
+    joinQueue(difficulty);
+  };
 
-    // Simulate finding a match after 2 seconds
-    setTimeout(() => {
-      setSearching(false);
-      setMatchFound(true);
-
-      // Pass match settings to parent, then navigate after brief display
-      setTimeout(() => {
-        if (onMatchFound) {
-          onMatchFound({ difficulty, language });
-        }
-        setMatchFound(false);
-      }, 1500);
-    }, 2000);
+  const handleCancel = () => {
+    setSearching(false);
+    leaveQueue();
   };
 
   return (
-    <div className="bg-surface border border-border rounded-xl p-8 shadow-sm transition-all relative overflow-hidden hover:shadow-lg hover:-translate-y-0.5 group transition-colors duration-300">
-      {/* Top gradient border effect */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+    <div className="bg-surface border border-border rounded-xl p-8 shadow-sm transition-all relative overflow-hidden hover:shadow-lg group">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
-      <h2 className="text-2xl font-bold mb-6 bg-clip-text text-text-secondary bg-gradient-to-br from-primary to-secondary">🎯 Find a Match</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-text-secondary">🎯 Find a Match</h2>
+        <span className={`text-xs px-2 py-1 rounded ${connected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+          {connected ? '● Online' : '○ Connecting...'}
+        </span>
+      </div>
 
       <div className="flex flex-col gap-2 mb-6">
-        <label className="text-[0.9rem] font-semibold text-text">Select Difficulty</label>
+        <label className="text-sm font-semibold text-text">Difficulty</label>
         <div className="grid grid-cols-3 gap-3">
           {['easy', 'medium', 'hard'].map((level) => (
             <button
               key={level}
-              className={`relative p-3.5 rounded-lg border-2 font-bold cursor-pointer transition-all overflow-hidden ${difficulty === level
-                ? 'bg-gradient-to-br from-primary to-secondary text-white border-primary shadow-[0_4px_12px_rgba(59,130,246,0.3)]'
-                : 'bg-surface-alt text-text border-border hover:border-primary-dark hover:bg-primary-light hover:-translate-y-0.5'
-                }`}
+              className={`p-3 rounded-lg border-2 font-bold transition-all ${difficulty === level
+                ? 'bg-gradient-to-br from-primary to-secondary text-white border-primary'
+                : 'bg-surface-alt text-text border-border hover:border-primary'}`}
               onClick={() => setDifficulty(level)}
               disabled={searching}
             >
               {level.charAt(0).toUpperCase() + level.slice(1)}
-              {difficulty !== level && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-gradient-to-r from-primary to-secondary translate-x-[-100%] transition-transform duration-300 group-hover:translate-x-0"></div>}
             </button>
           ))}
         </div>
       </div>
 
       <div className="flex flex-col gap-2 mb-6">
-        <label className="text-[0.9rem] font-semibold text-text">Preferred Language</label>
+        <label className="text-sm font-semibold text-text">Language</label>
         <select
-          className="p-3.5 border-2 border-border rounded-lg text-[0.95rem] font-inherit transition-all bg-selector text-text focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:-translate-y-px"
+          className="p-3 border-2 border-border rounded-lg bg-selector text-text focus:border-primary"
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
           disabled={searching}
         >
-          <option value="javascript">JavaScript</option>
+          <option value="cpp">C++</option>
           <option value="python">Python</option>
           <option value="java">Java</option>
-          <option value="cpp">C++</option>
-          <option value="go">Go</option>
-          <option value="rust">Rust</option>
+          <option value="javascript">JavaScript</option>
         </select>
       </div>
 
-      <button
-        className="w-full mt-4 p-3.5 rounded-lg border-none text-[0.95rem] font-bold cursor-pointer transition-all relative overflow-hidden bg-gradient-to-br from-primary to-secondary text-white shadow-[0_4px_12px_rgba(59,130,246,0.3)] hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(59,130,246,0.4)] active:-translate-y-px disabled:opacity-60 disabled:cursor-not-allowed"
-        onClick={handleSearch}
-        disabled={searching}
-      >
-        {searching ? '🔍 Searching for opponent...' : '⚔️ Start Battle'}
-      </button>
+      {searching ? (
+        <button className="w-full p-3 rounded-lg border-2 border-red-500 text-red-400 bg-red-500/10 font-bold hover:bg-red-500/20" onClick={handleCancel}>
+          ✕ Cancel
+        </button>
+      ) : (
+        <button
+          className="w-full p-3 rounded-lg bg-gradient-to-br from-primary to-secondary text-white font-bold hover:opacity-90 disabled:opacity-50"
+          onClick={handleSearch}
+          disabled={!connected}
+        >
+          ⚔️ Find Match
+        </button>
+      )}
 
-      {matchFound && (
-        <div className="mt-6 p-6 rounded-lg border-l-4 border-secondary bg-secondary/10 shadow-[0_4px_12px_rgba(16,185,129,0.2)] animate-[slideIn_0.4s_ease-out]">
-          <div className="font-bold mb-2">✅ Match Found!</div>
-          <p className="m-0 mt-2 text-[0.9rem]">
-            Connecting to battle arena...
-          </p>
+      {searching && (
+        <div className="mt-4 p-4 rounded-lg border-l-4 border-primary bg-primary/10">
+          <div className="font-bold">🔍 Searching... {Math.floor(searchTime / 60)}:{(searchTime % 60).toString().padStart(2, '0')}</div>
+          <p className="text-sm text-text-secondary mt-1">Waiting for opponent</p>
         </div>
       )}
     </div>
