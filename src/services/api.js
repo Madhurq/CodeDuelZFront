@@ -105,3 +105,73 @@ export async function getPublicProfile(userId) {
 
     return response.json();
 }
+
+/**
+ * Get user's match history (authenticated)
+ * Returns: Array of { matchId, opponentId, opponentName, problemId, problemTitle, status, result, startTime, endTime }
+ */
+export async function getMatchHistory() {
+    return apiGet('/matches/history');
+}
+
+/**
+ * Create a new match (authenticated)
+ * @param {object} data - { opponentUserId: number, difficulty: 'EASY' | 'MEDIUM' | 'HARD' }
+ * Returns: { matchId, player1Id, player1Name, player2Id, player2Name, problemId, problemTitle, startTime, endTime, status }
+ */
+export async function createMatch(data) {
+    return apiPost('/matches', data);
+}
+
+/**
+ * Submit match result
+ * @param {number} matchId - The match ID
+ * @param {object} data - { winnerUserId: number }
+ */
+export async function submitMatchResult(matchId, data) {
+    const response = await authenticatedFetch(`/matches/${matchId}/result`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+    }
+
+    // This endpoint returns void, so don't parse JSON
+    return true;
+}
+
+/**
+ * Get problem for a specific match
+ * @param {number} matchId - The match ID
+ * Returns: { problemId, title, description, difficulty }
+ */
+export async function getMatchProblem(matchId) {
+    return apiGet(`/matches/${matchId}/problem`);
+}
+
+/**
+ * Get a random problem by difficulty - no authentication required
+ * @param {string} difficulty - 'EASY' | 'MEDIUM' | 'HARD'
+ */
+export async function getRandomProblem(difficulty) {
+    const response = await fetch(`${BASE_URL}/problems/random?difficulty=${difficulty}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+    }
+
+    return response.json();
+}
+
+/**
+ * Get external stats from LeetCode, Codeforces, and CodeChef (authenticated)
+ * Returns: { leetCode: {...}, codeforces: {...}, codeChef: {...} }
+ */
+export async function getExternalStats() {
+    return apiGet('/external-stats');
+}

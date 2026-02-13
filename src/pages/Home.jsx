@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import MatchSearch from '../components/MatchSearch';
 import QuickStats from '../components/QuickStats';
-import { db } from '../config/firebase.js';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import MatchHistory from '../components/MatchHistory';
+import { apiGet } from '../services/api';
 
 export default function Home({ user, onStartMatch }) {
   const [stats, setStats] = useState({
@@ -14,46 +14,28 @@ export default function Home({ user, onStartMatch }) {
   });
   const [loading, setLoading] = useState(false);
 
-  // Load user stats from Firestore
+  // Load user stats from Backend API
   useEffect(() => {
     if (!user) return;
 
     const loadStats = async () => {
       try {
-        // Set a timeout to prevent infinite loading
-        const timeoutId = setTimeout(() => {
-          setLoading(false);
-          console.warn('Stats loading timeout - using default values');
-        }, 5000); // 5 second timeout
+        setLoading(true);
+        
+        // Fetch profile data from backend API
+        const data = await apiGet('/profile');
 
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        clearTimeout(timeoutId);
-
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          setStats({
-            matches: data.matches || 0,
-            wins: data.wins || 0,
-            losses: data.losses || 0,
-            rating: data.rating || 1000,
-            winRate: data.matches > 0 ? Math.round((data.wins / data.matches) * 100) : 0
-          });
-        } else {
-          // First time user - create default stats
-          const defaultStats = {
-            matches: 0,
-            wins: 0,
-            losses: 0,
-            rating: 1000,
-            createdAt: new Date(),
-            email: user.email
-          };
-          await setDoc(userDocRef, defaultStats);
-        }
+        const totalMatches = (data.wins || 0) + (data.losses || 0);
+        setStats({
+          matches: totalMatches,
+          wins: data.wins || 0,
+          losses: data.losses || 0,
+          rating: data.rating || 1000,
+          winRate: totalMatches > 0 ? Math.round((data.wins / totalMatches) * 100) : 0
+        });
       } catch (error) {
         console.error('Error loading stats:', error);
+        // Keep default stats on error
       } finally {
         setLoading(false);
       }
@@ -75,6 +57,11 @@ export default function Home({ user, onStartMatch }) {
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8">
           <MatchSearch onMatchFound={handleMatchFound} username={user?.email?.split('@')[0]} />
           <QuickStats stats={stats} loading={loading} />
+        </div>
+
+        {/* Match History Section */}
+        <div className="mt-8">
+          <MatchHistory />
         </div>
 
         {/* How It Works Section */}
