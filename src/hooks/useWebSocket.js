@@ -6,6 +6,10 @@ export function useWebSocket(username) {
     const [connected, setConnected] = useState(false);
     const [matchData, setMatchData] = useState(null);
     const [matchResult, setMatchResult] = useState(null);
+    const [runResult, setRunResult] = useState(null);
+    const [submitResult, setSubmitResult] = useState(null);
+    const [isRunning, setIsRunning] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const clientRef = useRef(null);
 
     useEffect(() => {
@@ -27,9 +31,25 @@ export function useWebSocket(username) {
                 onConnect: () => {
                     console.log('WebSocket connected for', username);
                     setConnected(true);
+
+                    // Subscribe to match found events
                     client.subscribe(`/topic/user/${username}`, (msg) => {
                         console.log('Match found:', msg.body);
                         setMatchData(JSON.parse(msg.body));
+                    });
+
+                    // Subscribe to run results (▶ Run button)
+                    client.subscribe(`/topic/user/${username}/run-result`, (msg) => {
+                        console.log('Run result:', msg.body);
+                        setRunResult(JSON.parse(msg.body));
+                        setIsRunning(false);
+                    });
+
+                    // Subscribe to submit results (🚀 Submit button)
+                    client.subscribe(`/topic/user/${username}/submit-result`, (msg) => {
+                        console.log('Submit result:', msg.body);
+                        setSubmitResult(JSON.parse(msg.body));
+                        setIsSubmitting(false);
                     });
                 },
                 onDisconnect: () => setConnected(false),
@@ -74,8 +94,21 @@ export function useWebSocket(username) {
         }
     }, []);
 
+    const runCode = useCallback((matchId, code, language) => {
+        if (clientRef.current?.connected) {
+            setIsRunning(true);
+            setRunResult(null);
+            clientRef.current.publish({
+                destination: '/app/match/run',
+                body: JSON.stringify({ username, matchId, code, language }),
+            });
+        }
+    }, [username]);
+
     const submitCode = useCallback((matchId, code, language) => {
         if (clientRef.current?.connected) {
+            setIsSubmitting(true);
+            setSubmitResult(null);
             clientRef.current.publish({
                 destination: '/app/match/submit',
                 body: JSON.stringify({ username, matchId, code, language }),
@@ -87,11 +120,18 @@ export function useWebSocket(username) {
         connected,
         matchData,
         matchResult,
+        runResult,
+        submitResult,
+        isRunning,
+        isSubmitting,
         joinQueue,
         leaveQueue,
         subscribeToMatch,
+        runCode,
         submitCode,
         clearMatchData: () => setMatchData(null),
         clearMatchResult: () => setMatchResult(null),
+        clearRunResult: () => setRunResult(null),
+        clearSubmitResult: () => setSubmitResult(null),
     };
 }
