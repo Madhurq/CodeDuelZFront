@@ -9,6 +9,20 @@ const STARTER_CODE = {
     cpp: `#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // Write your solution here\n    return 0;\n}`,
 };
 
+// Map frontend language keys to LeetCode JSON code_snippets keys
+const LANG_TO_SNIPPET_KEY = {
+    cpp: 'cpp',
+    python: 'python3',
+    java: 'java',
+    javascript: 'javascript',
+};
+
+function getStarterCode(language, problem) {
+    const snippetKey = LANG_TO_SNIPPET_KEY[language] || language;
+    const snippet = problem?.codeSnippets?.[snippetKey];
+    return snippet || STARTER_CODE[language] || STARTER_CODE.cpp;
+}
+
 export default function MatchArena({ matchSettings, onMatchEnd, user }) {
     const username = user?.email?.split('@')[0];
     const [code, setCode] = useState('');
@@ -16,8 +30,9 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
     const [timeLeft, setTimeLeft] = useState(matchSettings?.timeLimitSeconds || 900);
     const [matchStatus, setMatchStatus] = useState('in_progress');
 
-    // Use problem data sent by backend (which now includes scraped description)
+    // Use problem data sent by backend
     const problem = matchSettings?.problem;
+    const startTimeMs = matchSettings?.startTimeMs;
 
     const { connected, matchResult, subscribeToMatch, submitCode, clearMatchResult } = useWebSocket(username);
 
@@ -37,26 +52,36 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
         }
     }, [matchResult, username, clearMatchResult]);
 
-    // Initialize code
+    // Initialize code with problem-specific boilerplate
     useEffect(() => {
-        setCode(STARTER_CODE[language] || STARTER_CODE.cpp);
-    }, [language]);
+        setCode(getStarterCode(language, problem));
+    }, [language, problem]);
 
-    // Timer
+    // Timer - synced from server start time
     useEffect(() => {
         if (matchStatus !== 'in_progress') return;
-        const timer = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev <= 1) {
-                    clearInterval(timer);
-                    setMatchStatus('lost');
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
+        const timeLimitSeconds = matchSettings?.timeLimitSeconds || 900;
+
+        const tick = () => {
+            if (startTimeMs) {
+                // Calculate remaining from server timestamp
+                const elapsed = Math.floor((Date.now() - startTimeMs) / 1000);
+                const remaining = Math.max(0, timeLimitSeconds - elapsed);
+                setTimeLeft(remaining);
+                if (remaining <= 0) setMatchStatus('lost');
+            } else {
+                // Fallback: count down locally
+                setTimeLeft((prev) => {
+                    if (prev <= 1) { setMatchStatus('lost'); return 0; }
+                    return prev - 1;
+                });
+            }
+        };
+
+        tick(); // sync immediately
+        const timer = setInterval(tick, 1000);
         return () => clearInterval(timer);
-    }, [matchStatus]);
+    }, [matchStatus, startTimeMs, matchSettings?.timeLimitSeconds]);
 
     const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
@@ -76,8 +101,8 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                     <h1 className="text-xl font-bold text-text">⚔️ Code Battle</h1>
                     {problem?.difficulty && (
                         <span className={`px-3 py-1 rounded-full text-sm font-semibold ${problem.difficulty === 'EASY' ? 'bg-green-500/20 text-green-400' :
-                                problem.difficulty === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400' :
-                                    'bg-red-500/20 text-red-400'
+                            problem.difficulty === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400' :
+                                'bg-red-500/20 text-red-400'
                             }`}>
                             {problem.difficulty}
                         </span>
@@ -102,14 +127,52 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                             <h2 className="text-2xl font-bold text-text mb-2">{problem.title}</h2>
                             {problem.url && (
                                 <a href={problem.url} target="_blank" rel="noopener noreferrer" className="text-primary text-xs hover:underline mb-4 block">
-                                    View on Codeforces ↗
+                                    View on LeetCode ↗
                                 </a>
                             )}
-                            <div
-                                className="text-text-secondary text-sm whitespace-pre-wrap leading-relaxed mt-4 problem-content"
-                                dangerouslySetInnerHTML={{ __html: problem.description }}
-                            />
-                            {/* Note: dangerous HTML is needed because we scrape HTML from Codeforces */}
+                            {/* Description */}
+                            <div className="text-text-secondary text-sm whitespace-pre-wrap leading-relaxed mt-4">
+                                {problem.description}
+                            </div>
+
+                            {/* Examples */}
+                            {problem.examples && problem.examples.length > 0 && (
+                                <div style={{ marginTop: '16px' }}>
+                                    {problem.examples.map((ex, i) => (
+                                        <div key={i} style={{ marginTop: '12px' }}>
+                                            <strong className="text-text text-sm">Example {ex.num}:</strong>
+                                            <pre style={{
+                                                background: '#1e1e1e',
+                                                padding: '12px',
+                                                borderRadius: '8px',
+                                                marginTop: '4px',
+                                                whiteSpace: 'pre-wrap',
+                                                color: '#d4d4d4',
+                                                fontSize: '13px',
+                                                lineHeight: '1.5'
+                                            }}>
+                                                {ex.text}
+                                            </pre>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Constraints */}
+                            {problem.constraints && problem.constraints.length > 0 && (
+                                <div style={{ marginTop: '16px' }}>
+                                    <strong className="text-text text-sm">Constraints:</strong>
+                                    <ul style={{ marginTop: '4px', paddingLeft: '20px' }}>
+                                        {problem.constraints.map((c, i) => (
+                                            <li key={i} className="text-text-secondary text-sm" style={{ marginTop: '4px' }}>
+                                                <code style={{ background: '#1e1e1e', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }}>
+                                                    {c}
+                                                </code>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                         </>
                     ) : (
                         <div className="flex items-center justify-center h-full">

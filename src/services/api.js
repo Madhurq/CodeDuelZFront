@@ -1,6 +1,38 @@
 import { auth } from '../config/firebase';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const LOCAL_URL = 'http://localhost:8080';
+const REMOTE_URL = import.meta.env.VITE_API_BASE_URL || 'https://codeduelz-kscu.onrender.com';
+
+// Resolved at runtime: try local first, fallback to remote
+let resolvedBaseUrl = null;
+
+async function resolveBaseUrl() {
+    if (resolvedBaseUrl !== null) return resolvedBaseUrl;
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 1500);
+        await fetch(`${LOCAL_URL}/leaderboard`, { signal: controller.signal });
+        clearTimeout(timeout);
+        resolvedBaseUrl = LOCAL_URL;
+        console.log('API: Connected to local server at', LOCAL_URL);
+    } catch {
+        resolvedBaseUrl = REMOTE_URL;
+        console.log('API: Local server unavailable, using remote:', REMOTE_URL);
+    }
+    return resolvedBaseUrl;
+}
+
+// Kick off detection immediately on import
+const baseUrlPromise = resolveBaseUrl();
+
+export async function getBaseUrl() {
+    return baseUrlPromise;
+}
+
+// Synchronous getter (returns REMOTE_URL until resolved)
+export function getResolvedBaseUrl() {
+    return resolvedBaseUrl ?? REMOTE_URL;
+}
 
 /**
  * Makes an authenticated API request with Firebase ID token.
@@ -23,6 +55,7 @@ export async function authenticatedFetch(url, options = {}) {
         ...options.headers,
     };
 
+    const BASE_URL = await getBaseUrl();
     return fetch(`${BASE_URL}${url}`, {
         ...options,
         headers,
@@ -78,6 +111,7 @@ export async function apiPut(url, data) {
  * Get the leaderboard (top 10 players) - no authentication required
  */
 export async function getLeaderboard() {
+    const BASE_URL = await getBaseUrl();
     const response = await fetch(`${BASE_URL}/leaderboard`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -94,6 +128,7 @@ export async function getLeaderboard() {
  * Get a user's public profile by ID - no authentication required
  */
 export async function getPublicProfile(userId) {
+    const BASE_URL = await getBaseUrl();
     const response = await fetch(`${BASE_URL}/profile/${userId}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -156,6 +191,7 @@ export async function getMatchProblem(matchId) {
  * @param {string} difficulty - 'EASY' | 'MEDIUM' | 'HARD'
  */
 export async function getRandomProblem(difficulty) {
+    const BASE_URL = await getBaseUrl();
     const response = await fetch(`${BASE_URL}/problems/random?difficulty=${difficulty}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
