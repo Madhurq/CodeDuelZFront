@@ -12,6 +12,7 @@
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "@stomp/stompjs": "^7.3.0",
+    "axios": "^1.13.5",
     "firebase": "^12.7.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

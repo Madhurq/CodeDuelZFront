@@ -10,6 +10,7 @@ import UserProfile from './pages/UserProfile';
 import MatchArena from './pages/MatchArena';
 import Login from './pages/Login';
 import LandingPage from './pages/LandingPage';
+import Friends from './pages/Friends';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -89,6 +90,7 @@ function App() {
         />
       )}
       {currentPage === 'home' && <Home user={user} onStartMatch={handleStartMatch} />}
+      {currentPage === 'friends' && <Friends user={user} onStartMatch={handleStartMatch} />}
       {currentPage === 'profile' && <Profile user={user} />}
       {currentPage === 'leaderboard' && <Leaderboard onViewProfile={handleViewUserProfile} />}
       {currentPage === 'user-profile' && (

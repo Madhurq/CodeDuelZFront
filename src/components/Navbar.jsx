@@ -56,7 +56,7 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout }) {
         </div>
 
         <div className="hidden sm:flex gap-4">
-          {['home', 'leaderboard', 'profile'].map((page) => (
+          {['home', 'friends', 'leaderboard', 'profile'].map((page) => (
             <button
               key={page}
               onClick={() => onPageChange(page)}

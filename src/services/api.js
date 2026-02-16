@@ -211,3 +211,84 @@ export async function getRandomProblem(difficulty) {
 export async function getExternalStats() {
     return apiGet('/external-stats');
 }
+
+// ============================================
+// Friend System API Functions
+// ============================================
+
+/**
+ * Get all friends with online status (authenticated)
+ * Returns: Array of { friendId, userId, username, email, isOnline }
+ * Online friends are sorted to the top
+ */
+export async function getFriends() {
+    return apiGet('/api/friends');
+}
+
+/**
+ * Get pending friend requests (authenticated)
+ * Returns: Array of { requestId, fromUserId, fromUsername, toUserId, toUsername, status, createdAt }
+ */
+export async function getPendingRequests() {
+    return apiGet('/api/friends/requests');
+}
+
+/**
+ * Send a friend request by username (authenticated)
+ * @param {string} username - The username to send friend request to
+ * Returns: { requestId, fromUserId, fromUsername, toUserId, toUsername, status, createdAt }
+ */
+export async function sendFriendRequest(username) {
+    return apiPost('/api/friends/request', { username });
+}
+
+/**
+ * Accept a friend request (authenticated)
+ * @param {number} requestId - The friend request ID
+ * Returns: void
+ */
+export async function acceptFriendRequest(requestId) {
+    const response = await authenticatedFetch(`/api/friends/accept/${requestId}`, {
+        method: 'POST',
+    });
+
+    if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+    }
+
+    return true;
+}
+
+/**
+ * Reject a friend request (authenticated)
+ * @param {number} requestId - The friend request ID
+ * Returns: void
+ */
+export async function rejectFriendRequest(requestId) {
+    const response = await authenticatedFetch(`/api/friends/reject/${requestId}`, {
+        method: 'POST',
+    });
+
+    if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+    }
+
+    return true;
+}
+
+/**
+ * Remove a friend (authenticated)
+ * @param {number} friendId - The friend ID to remove
+ * Returns: void
+ */
+export async function removeFriend(friendId) {
+    const response = await authenticatedFetch(`/api/friends/${friendId}`, {
+        method: 'DELETE',
+    });
+
+    if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+    }
+
+    return true;
+}
