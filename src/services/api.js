@@ -239,7 +239,7 @@ export async function getPendingRequests() {
  * Returns: { requestId, fromUserId, fromUsername, toUserId, toUsername, status, createdAt }
  */
 export async function sendFriendRequest(username) {
-    return apiPost('/api/friends/request', { username });
+    return apiPost('/api/friends/request', { toUsername: username });
 }
 
 /**

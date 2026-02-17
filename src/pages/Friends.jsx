@@ -137,8 +137,8 @@ export default function Friends({ user, onStartMatch }) {
                 {message.text && (
                     <div
                         className={`mb-6 p-4 rounded-lg border-l-4 ${message.type === 'success'
-                                ? 'bg-green-500/10 border-green-500 text-green-400'
-                                : 'bg-red-500/10 border-red-500 text-red-400'
+                            ? 'bg-green-500/10 border-green-500 text-green-400'
+                            : 'bg-red-500/10 border-red-500 text-red-400'
                             } animate-[slideIn_0.3s_ease-out]`}
                     >
                         {message.text}

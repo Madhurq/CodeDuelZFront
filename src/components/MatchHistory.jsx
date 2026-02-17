@@ -103,22 +103,22 @@ export default function MatchHistory({ onViewProfile }) {
           {matches.map((match) => (
             <div
               key={match.matchId}
-              className={`p-4 rounded-xl border-2 transition-all hover:-translate-y-0.5 hover:shadow-md ${
-                match.result === 'WIN'
+              className={`p-4 rounded-xl border-2 transition-all hover:-translate-y-0.5 hover:shadow-md ${match.result === 'WIN'
                   ? 'border-green-500/30 bg-green-500/5 hover:border-green-500/50'
-                  : 'border-red-500/30 bg-red-500/5 hover:border-red-500/50'
-              }`}
+                  : match.result === 'LOSS'
+                    ? 'border-red-500/30 bg-red-500/5 hover:border-red-500/50'
+                    : 'border-yellow-500/30 bg-yellow-500/5 hover:border-yellow-500/50'
+                }`}
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">
-                    {match.result === 'WIN' ? '🏆' : '💔'}
+                    {match.result === 'WIN' ? '🏆' : match.result === 'LOSS' ? '💔' : '🤝'}
                   </span>
                   <div>
-                    <span className={`font-bold ${
-                      match.result === 'WIN' ? 'text-green-400' : 'text-red-400'
-                    }`}>
-                      {match.result === 'WIN' ? 'Victory' : 'Defeat'}
+                    <span className={`font-bold ${match.result === 'WIN' ? 'text-green-400' : match.result === 'LOSS' ? 'text-red-400' : 'text-yellow-400'
+                      }`}>
+                      {match.result === 'WIN' ? 'Victory' : match.result === 'LOSS' ? 'Defeat' : 'Draw'}
                     </span>
                     <p className="text-sm text-text-secondary">
                       vs {match.opponentName || `Player #${match.opponentId}`}
@@ -156,7 +156,7 @@ export default function MatchHistory({ onViewProfile }) {
 
       {/* Stats Summary */}
       {matches.length > 0 && (
-        <div className="mt-6 pt-4 border-t border-border grid grid-cols-3 gap-4 text-center">
+        <div className="mt-6 pt-4 border-t border-border grid grid-cols-4 gap-4 text-center">
           <div>
             <div className="text-2xl font-bold text-text">{matches.length}</div>
             <div className="text-xs text-text-secondary">Total Matches</div>
@@ -172,6 +172,12 @@ export default function MatchHistory({ onViewProfile }) {
               {matches.filter(m => m.result === 'LOSS').length}
             </div>
             <div className="text-xs text-text-secondary">Losses</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-yellow-400">
+              {matches.length - matches.filter(m => m.result === 'WIN').length - matches.filter(m => m.result === 'LOSS').length}
+            </div>
+            <div className="text-xs text-text-secondary">Draws</div>
           </div>
         </div>
       )}
