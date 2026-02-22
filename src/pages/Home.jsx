@@ -3,6 +3,7 @@ import MatchSearch from '../components/MatchSearch';
 import QuickStats from '../components/QuickStats';
 import MatchHistory from '../components/MatchHistory';
 import { apiGet } from '../services/api';
+import logo from '../assets/logo.png';
 
 export default function Home({ user, onStartMatch }) {
   const [stats, setStats] = useState({
@@ -14,17 +15,13 @@ export default function Home({ user, onStartMatch }) {
   });
   const [loading, setLoading] = useState(false);
 
-  // Load user stats from Backend API
   useEffect(() => {
     if (!user) return;
 
     const loadStats = async () => {
       try {
         setLoading(true);
-        
-        // Fetch profile data from backend API
         const data = await apiGet('/profile');
-
         const totalMatches = (data.wins || 0) + (data.losses || 0);
         setStats({
           matches: totalMatches,
@@ -35,7 +32,6 @@ export default function Home({ user, onStartMatch }) {
         });
       } catch (error) {
         console.error('Error loading stats:', error);
-        // Keep default stats on error
       } finally {
         setLoading(false);
       }
@@ -44,92 +40,112 @@ export default function Home({ user, onStartMatch }) {
     loadStats();
   }, [user]);
 
-  // Handle match found - navigate to arena
   const handleMatchFound = (settings) => {
     if (onStartMatch) {
       onStartMatch(settings);
     }
   };
 
+  const steps = [
+    { num: '01', title: 'Find Match', desc: 'Search for a random opponent or challenge a friend', icon: '🔍', action: 'search' },
+    { num: '02', title: 'Get Problem', desc: 'Both players receive the same coding challenge', icon: '📝', action: 'match' },
+    { num: '03', title: 'Code Battle', desc: 'Solve faster than your opponent to win', icon: '⚡', action: 'match' },
+    { num: '04', title: 'Climb Ranks', desc: 'Win matches to increase your rating', icon: '🏆', action: 'leaderboard' },
+  ];
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="max-w-[1200px] mx-auto p-8 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8">
+    <div className="min-h-screen bg-background">
+      {/* Background Pattern */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-10"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[150px]"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-tertiary/5 rounded-full blur-[120px]"></div>
+      </div>
+
+      <div className="relative z-10 max-w-[1400px] mx-auto p-6 lg:p-8">
+        {/* Hero Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-black mb-4">
+            Welcome back, <span className="text-gradient">{user?.email?.split('@')[0] || 'Champion'}</span>
+          </h1>
+          <p className="text-text-secondary text-lg max-w-2xl mx-auto">
+            Ready to prove you're the best coder? Your next battle awaits.
+          </p>
+        </div>
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 mb-12">
           <MatchSearch onMatchFound={handleMatchFound} username={user?.email?.split('@')[0]} />
           <QuickStats stats={stats} loading={loading} />
         </div>
 
-        {/* Match History Section */}
-        <div className="mt-8">
+        {/* Match History */}
+        <div className="mb-16">
           <MatchHistory />
         </div>
 
-        {/* How It Works Section */}
-        <div className="mt-16 mb-12">
-          <h2 className="text-4xl font-extrabold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary relative after:content-[''] after:absolute after:-bottom-3 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-primary after:to-secondary after:rounded-sm">
-            ⚔️ How CodeDuelZ Works
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { icon: '🎯', title: '1. Choose Your Challenge', desc: 'Select difficulty level and your preferred programming language. Get matched with opponents of similar skill.' },
-              { icon: '👥', title: '2. Get Matched', desc: 'Our intelligent matchmaking system pairs you with a worthy opponent in real-time for a fair competition.' },
-              { icon: '⏱️', title: '3. Code & Compete', desc: 'Solve challenging problems against the clock. Write clean, efficient code to outperform your opponent.' },
-              { icon: '🏆', title: '4. Climb the Ranks', desc: 'Win battles to increase your rating, earn achievements, and rise through competitive ranks.' }
-            ].map((feature, index) => (
-              <div key={index} className="bg-surface border-2 border-border rounded-xl p-8 text-center transition-all duration-300 relative overflow-hidden group hover:border-primary hover:-translate-y-2 hover:shadow-lg">
-                <div className="absolute top-0 -left-full w-full h-full bg-gradient-to-r from-transparent via-primary/5 to-transparent transition-all duration-600 group-hover:left-full"></div>
-                <div className="text-5xl mb-4 inline-block group-hover:animate-[spin_0.7s_ease-in-out]">
-                  {feature.icon}
+        {/* How It Works */}
+        <div className="mb-12">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              How It <span className="text-accent">Works</span>
+            </h2>
+            <p className="text-text-secondary max-w-xl mx-auto">
+              Four simple steps to become a coding champion
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {steps.map((step, idx) => (
+              <div
+                key={idx}
+                className="card p-6 text-center group cursor-default"
+              >
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
+                  {step.icon}
                 </div>
-                <h3 className="text-xl font-bold mb-3 text-text">{feature.title}</h3>
-                <p className="text-text-secondary leading-relaxed text-base">{feature.desc}</p>
+                <div className="text-xs text-accent font-bold mb-2">{step.num}</div>
+                <h3 className="text-lg font-bold mb-2">{step.title}</h3>
+                <p className="text-text-secondary text-sm">{step.desc}</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Features Highlight */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 my-12 p-12 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl border-2 border-border">
-          {[
-            { number: '10+', label: 'Programming Languages' },
-            { number: '500+', label: 'Practice Problems' },
-            { number: '24/7', label: 'Live Matchmaking' },
-            { number: '∞', label: 'Learning Opportunities' }
-          ].map((item, index) => (
-            <div key={index} className="text-center p-6 bg-abc rounded-xl transition-all cursor-pointer hover:scale-110 hover:shadow-md ">
-              <div className="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary mb-2">{item.number}</div>
-              <div className="text-sm font-semibold text-text-secondary">{item.label}</div>
-            </div>
-          ))}
+        {/* Stats Banner */}
+        <div className="relative overflow-hidden rounded-2xl bg-surface-elevated border border-border p-8 md:p-12">
+          <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-20"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-[80px]"></div>
+
+          <div className="relative grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { num: '10+', label: 'Languages', icon: '⚡' },
+              { num: '500+', label: 'Problems', icon: '📚' },
+              { num: '24/7', label: 'Live Matches', icon: '🎯' },
+              { num: '∞', label: 'Fun', icon: '🚀' },
+            ].map((item, idx) => (
+              <div key={idx} className="group">
+                <div className="text-4xl mb-2">{item.icon}</div>
+                <div className="text-3xl md:text-4xl font-black text-gradient">{item.num}</div>
+                <div className="text-text-secondary">{item.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="mt-auto bg-gradient-to-br from-slate-800 to-slate-900 text-slate-200 py-12 border-t-4 border-primary [border-image:linear-gradient(90deg,var(--color-primary),var(--color-secondary))_1]">
-        <div className="max-w-[1200px] mx-auto px-8 grid grid-cols-1 md:grid-cols-4 gap-12 mb-8">
-          <div className="col-span-1 md:col-span-2">
-            <h4 className="text-lg font-bold mb-4 text-white">⚔️ CodeDuelZ</h4>
-            <p className="text-slate-400 leading-relaxed text-sm max-w-sm">The ultimate 1v1 competitive coding platform. Sharpen your skills, compete with peers, and become a coding champion.</p>
-          </div>
-          {[
-            { title: 'Platform', links: ['How It Works', 'Leaderboard', 'Tournaments', 'Practice Arena'] },
-            { title: 'Resources', links: ['Documentation', 'API Reference', 'Community', 'Support'] },
-            { title: 'Connect', links: ['GitHub', 'Discord', 'Twitter', 'LinkedIn'] }
-          ].slice(0, 3).map((section, idx) => (
-            /* Adjusting slice if only showing specific cols, currently mapped all in App.css */
-            <div key={idx}>
-              <h4 className="text-lg font-bold mb-4 text-white">{section.title}</h4>
-              <ul className="list-none space-y-3 text-sm text-slate-400">
-                {section.links.map((link) => (
-                  <li key={link} className="hover:text-white hover:pl-1 transition-all cursor-pointer">{link}</li>
-                ))}
-              </ul>
+      <footer className="relative z-10 border-t border-border bg-surface mt-auto py-12">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="CodeDuelZ" className="w-8 h-8" />
+              <span className="font-bold">CodeDuelZ</span>
             </div>
-          )).slice(0, 3)}
-          {/* Note: The original CSS had 4 columns (1 big + 3 small). The map above produces 3 small columns correctly if mapped right. */}
-        </div>
-        <div className="max-w-[1200px] mx-auto px-8 pt-6 border-t border-white/10 text-center">
-          <p className="text-slate-400 text-sm">&copy; 2026 CodeDuelZ. Built with ❤️ for developers.</p>
+            <div className="text-text-secondary text-sm">
+              © 2026 CodeDuelZ. Crafted with precision.
+            </div>
+          </div>
         </div>
       </footer>
     </div>

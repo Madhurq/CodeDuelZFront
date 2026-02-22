@@ -12,13 +12,18 @@ export default function ProfileCard({ profileData, onEditClick, onLogout, onAvat
     if (file && onAvatarChange) {
       onAvatarChange(file);
     }
-    // Reset the input so the same file can be selected again
     e.target.value = '';
   };
 
+  const stats = [
+    { label: 'Wins', value: profileData.wins, color: 'text-success' },
+    { label: 'Losses', value: profileData.losses, color: 'text-error' },
+    { label: 'Rating', value: profileData.rating, color: 'text-accent' },
+    { label: 'Rank', value: profileData.rank || '-', color: 'text-gradient' },
+  ];
+
   return (
-    <div className="bg-surface border-2 border-border rounded-xl p-8 h-fit shadow-md relative overflow-hidden group transition-colors duration-300">
-      {/* Hidden file input for avatar upload */}
+    <div className="card p-6">
       <input
         type="file"
         ref={fileInputRef}
@@ -27,68 +32,54 @@ export default function ProfileCard({ profileData, onEditClick, onLogout, onAvat
         className="hidden"
       />
 
-      {/* Background gradient effect */}
-      <div className="absolute top-0 left-0 right-0 h-[120px] bg-gradient-to-br from-primary to-secondary opacity-10 z-0"></div>
-
+      {/* Avatar */}
       <div
         onClick={handleAvatarClick}
-        className="w-[110px] h-[110px] rounded-xl flex items-center justify-center text-[3rem] shadow-[0_8px_24px_rgba(59,130,246,0.3)] bg-gradient-to-br from-primary to-secondary text-white relative z-10 mx-auto mb-6 transition-all duration-300 cursor-pointer hover:scale-105 hover:rotate-3 hover:shadow-[0_12px_32px_rgba(59,130,246,0.4)] overflow-hidden"
-        title="Click to change avatar"
+        className="relative w-24 h-24 mx-auto mb-6 group cursor-pointer"
       >
-        {profileData.avatar ? (
-          <img
-            src={profileData.avatar}
-            alt="Avatar"
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          '👨‍💻'
-        )}
-        {/* Hover overlay with camera icon */}
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-          <span className="text-2xl">📷</span>
+        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-accent to-accent-dim flex items-center justify-center text-white text-4xl font-bold shadow-glow overflow-hidden">
+          {profileData.avatar ? (
+            <img src={profileData.avatar} alt="Avatar" className="w-full h-full object-cover" />
+          ) : (
+            '👨‍💻'
+          )}
+        </div>
+        <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
         </div>
       </div>
-      <h2 className="text-xl font-bold text-center mb-2 text-text">{profileData.name}</h2>
-      <p className="text-[0.9rem] text-center text-text-secondary mb-2">{profileData.email}</p>
 
-      {/* Bio display */}
+      <h2 className="text-xl font-bold text-center mb-1">{profileData.name}</h2>
+      <p className="text-sm text-text-secondary text-center mb-4">{profileData.email}</p>
+
       {profileData.bio && (
-        <p className="text-[0.85rem] text-center text-text-secondary italic mb-6 px-2 line-clamp-3">
+        <p className="text-sm text-text-secondary text-center italic mb-6 px-2">
           "{profileData.bio}"
         </p>
       )}
-      {!profileData.bio && <div className="mb-6"></div>}
 
-      <div className="flex flex-col gap-4 mb-6 pb-6 border-b border-border">
-        {[
-          { label: 'Wins', value: profileData.wins },
-          { label: 'Losses', value: profileData.losses },
-          { label: 'Rating', value: profileData.rating },
-          { label: 'Rank', value: profileData.rank }
-        ].map((stat) => (
-          <div key={stat.label} className="flex justify-between">
-            <span className="text-[0.9rem] text-text-secondary">{stat.label}</span>
-            <span className="font-bold text-primary">{stat.value}</span>
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        {stats.map((stat) => (
+          <div key={stat.label} className="p-3 bg-surface-elevated rounded-lg text-center">
+            <div className={`text-xl font-bold ${stat.color}`}>{stat.value}</div>
+            <div className="text-xs text-text-muted">{stat.label}</div>
           </div>
         ))}
       </div>
 
-      <div className="flex flex-col gap-3">
-        <button
-          className="w-full py-3.5 rounded-lg border-none font-bold text-[0.95rem] cursor-pointer transition-all relative overflow-hidden bg-gradient-to-br from-primary to-secondary text-white shadow-[0_4px_12px_rgba(59,130,246,0.3)] hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(59,130,246,0.4)] active:-translate-y-px"
-          onClick={onEditClick}
-        >
+      {/* Actions */}
+      <div className="space-y-3">
+        <button onClick={onEditClick} className="btn-primary w-full">
           Edit Profile
         </button>
-        <button
-          className="w-full py-3.5 rounded-lg border-2 border-border font-bold text-[0.95rem] cursor-pointer transition-all bg-surface text-text shadow-[0_2px_8px_rgba(0,0,0,0.05)] hover:bg-surface-alt hover:border-primary hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
-          onClick={onLogout}
-        >
+        <button onClick={onLogout} className="btn-secondary w-full">
           Logout
         </button>
       </div>
     </div>
   );
 }
-

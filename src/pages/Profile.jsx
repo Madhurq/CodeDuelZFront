@@ -26,12 +26,10 @@ export default function Profile({ user }) {
   });
 
   const [stats, setStats] = useState(null);
-
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load profile data from Backend API
   useEffect(() => {
     if (!user) return;
 
@@ -39,11 +37,7 @@ export default function Profile({ user }) {
       try {
         setLoading(true);
         setError(null);
-
-        // Call the backend API - token is automatically attached
         const data = await apiGet('/profile');
-
-        console.log('Profile loaded from API:', data);
 
         setProfileData({
           name: data.userName || user.displayName || 'Developer',
@@ -63,17 +57,15 @@ export default function Profile({ user }) {
           avatar: data.avatar || ''
         });
 
-        // Fetch external stats
         try {
           const statsData = await apiGet('/external-stats');
           setStats(statsData);
         } catch (err) {
           console.error('Error loading external stats:', err);
-          // Don't fail the whole page if stats fail
         }
       } catch (error) {
         console.error('Error loading profile:', error);
-        setError('Failed to load profile. Make sure the backend is running.');
+        setError('Failed to load profile');
       } finally {
         setLoading(false);
       }
@@ -85,8 +77,6 @@ export default function Profile({ user }) {
   const handleSaveProfiles = async (newProfiles) => {
     try {
       setLoading(true);
-
-      // Call the backend API to update profiles
       await apiPut('/profile', {
         leetcodeUsername: newProfiles.leetcode,
         codechefUsername: newProfiles.codechef,
@@ -94,7 +84,6 @@ export default function Profile({ user }) {
         bio: newProfiles.bio,
         avatar: newProfiles.avatar
       });
-
       setProfiles(newProfiles);
       setEditMode(false);
     } catch (error) {
@@ -105,26 +94,16 @@ export default function Profile({ user }) {
     }
   };
 
-  // Handle avatar change - converts file to base64 and saves immediately
   const handleAvatarChange = async (file) => {
     try {
       setLoading(true);
       setError(null);
-
-      // Convert file to base64 data URL
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64Avatar = reader.result;
-
         try {
-          // Save avatar immediately to backend
-          await apiPut('/profile', {
-            avatar: base64Avatar
-          });
-
-          // Update local state
+          await apiPut('/profile', { avatar: base64Avatar });
           setProfiles(prev => ({ ...prev, avatar: base64Avatar }));
-          setProfileData(prev => ({ ...prev, avatar: base64Avatar }));
         } catch (err) {
           console.error('Error saving avatar:', err);
           setError('Failed to save avatar.');
@@ -139,7 +118,6 @@ export default function Profile({ user }) {
       reader.readAsDataURL(file);
     } catch (err) {
       console.error('Error processing avatar:', err);
-      setError('Failed to process avatar.');
       setLoading(false);
     }
   };
@@ -151,50 +129,71 @@ export default function Profile({ user }) {
   };
 
   return (
-    <div className="max-w-[1200px] mx-auto p-8">
-      {loading && (
-        <div className="p-4 text-center text-[0.9rem] opacity-60 mb-4 animate-pulse">
-          Loading profile data...
-        </div>
-      )}
+    <div className="min-h-screen bg-background">
+      {/* Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[150px]"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-tertiary/5 rounded-full blur-[120px]"></div>
+      </div>
 
-      {error && (
-        <div className="p-4 text-center text-red-500 mb-4 bg-red-500/10 rounded-lg">
-          {error}
+      <div className="relative z-10 max-w-[1200px] mx-auto p-6 lg:p-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-black mb-2">
+            Your <span className="text-gradient">Profile</span>
+          </h1>
+          <p className="text-text-secondary text-lg">
+            Manage your competitive profile and connected accounts
+          </p>
         </div>
-      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8">
-        <ProfileCard
-          profileData={{ ...profileData, avatar: profiles.avatar, bio: profiles.bio }}
-          onEditClick={() => setEditMode(true)}
-          onLogout={handleLogout}
-          onAvatarChange={handleAvatarChange}
-        />
-        <div>
-          <div className="flex justify-between items-center mb-6 pb-4 border-b border-border">
-            <h2 className="text-2xl font-bold">Competitive Stats</h2>
+        {error && (
+          <div className="mb-6 p-4 rounded-lg bg-error/10 border border-error/20 text-error">
+            {error}
           </div>
+        )}
 
-          {!editMode && (
-            <CompetitiveStats
-              profiles={profiles}
-              stats={stats}
-              onAddClick={() => setEditMode(true)}
-            />
-          )}
+        <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8">
+          <ProfileCard
+            profileData={{ ...profileData, avatar: profiles.avatar, bio: profiles.bio }}
+            onEditClick={() => setEditMode(true)}
+            onLogout={handleLogout}
+            onAvatarChange={handleAvatarChange}
+          />
+          
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-tertiary/20 to-tertiary/5 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-tertiary">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold">Competitive Stats</h2>
+              </div>
+            </div>
 
-          {editMode && (
-            <EditProfiles
-              profiles={profiles}
-              loading={loading}
-              onSave={handleSaveProfiles}
-              onCancel={() => setEditMode(false)}
-            />
-          )}
+            {!editMode && (
+              <CompetitiveStats
+                profiles={profiles}
+                stats={stats}
+                onAddClick={() => setEditMode(true)}
+              />
+            )}
+
+            {editMode && (
+              <EditProfiles
+                profiles={profiles}
+                loading={loading}
+                onSave={handleSaveProfiles}
+                onCancel={() => setEditMode(false)}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 }
-

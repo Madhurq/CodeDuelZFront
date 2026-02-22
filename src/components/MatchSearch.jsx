@@ -8,7 +8,6 @@ export default function MatchSearch({ onMatchFound, username }) {
   const [searching, setSearching] = useState(false);
   const [searchTime, setSearchTime] = useState(0);
 
-  // Search timer
   useEffect(() => {
     if (!searching) {
       setSearchTime(0);
@@ -39,69 +38,125 @@ export default function MatchSearch({ onMatchFound, username }) {
     leaveQueue();
   };
 
-  return (
-    <div className="bg-surface border border-border rounded-xl p-8 shadow-sm transition-all relative overflow-hidden hover:shadow-lg group">
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+  const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-text-secondary">🎯 Find a Match</h2>
-        <span className={`text-xs px-2 py-1 rounded ${connected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-          {connected ? '● Online' : '○ Connecting...'}
-        </span>
+  return (
+    <div className="card p-8">
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-accent-dim flex items-center justify-center shadow-glow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold">Find a Match</h2>
+            <p className="text-text-secondary text-sm">Challenge a random opponent</p>
+          </div>
+        </div>
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
+          connected 
+            ? 'bg-success/10 text-success' 
+            : 'bg-error/10 text-error'
+        }`}>
+          <span className={`w-2 h-2 rounded-full ${connected ? 'bg-success' : 'bg-error'} ${connected && 'animate-pulse'}`}></span>
+          {connected ? 'Online' : 'Offline'}
+        </div>
       </div>
 
-      <div className="flex flex-col gap-2 mb-6">
-        <label className="text-sm font-semibold text-text">Difficulty</label>
+      {/* Difficulty Selection */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-text-secondary mb-3">Difficulty</label>
         <div className="grid grid-cols-3 gap-3">
-          {['easy', 'medium', 'hard'].map((level) => (
+          {[
+            { value: 'easy', label: 'Easy', color: 'easy', icon: '🌱' },
+            { value: 'medium', label: 'Medium', color: 'medium', icon: '🔥' },
+            { value: 'hard', label: 'Hard', color: 'hard', icon: '💀' }
+          ].map((level) => (
             <button
-              key={level}
-              className={`p-3 rounded-lg border-2 font-bold transition-all ${difficulty === level
-                ? 'bg-gradient-to-br from-primary to-secondary text-white border-primary'
-                : 'bg-surface-alt text-text border-border hover:border-primary'}`}
-              onClick={() => setDifficulty(level)}
+              key={level.value}
+              onClick={() => setDifficulty(level.value)}
               disabled={searching}
+              className={`relative p-4 rounded-xl border-2 font-semibold transition-all duration-200 ${
+                difficulty === level.value
+                  ? level.value === 'easy' 
+                    ? 'border-success bg-success/10 text-success'
+                    : level.value === 'medium'
+                      ? 'border-warning bg-warning/10 text-warning'
+                      : 'border-error bg-error/10 text-error'
+                  : 'border-border hover:border-border-light text-text-secondary hover:text-text'
+              }`}
             >
-              {level.charAt(0).toUpperCase() + level.slice(1)}
+              <span className="text-xl mb-1 block">{level.icon}</span>
+              {level.label}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 mb-6">
-        <label className="text-sm font-semibold text-text">Language</label>
-        <select
-          className="p-3 border-2 border-border rounded-lg bg-selector text-text focus:border-primary"
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          disabled={searching}
-        >
-          <option value="cpp">C++</option>
-          <option value="python">Python</option>
-          <option value="java">Java</option>
-          <option value="javascript">JavaScript</option>
-        </select>
+      {/* Language Selection */}
+      <div className="mb-8">
+        <label className="block text-sm font-medium text-text-secondary mb-3">Language</label>
+        <div className="relative">
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            disabled={searching}
+            className="input appearance-none cursor-pointer pr-12"
+          >
+            <option value="cpp">C++</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+            <option value="javascript">JavaScript</option>
+          </select>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+        </div>
       </div>
 
+      {/* Action Button */}
       {searching ? (
-        <button className="w-full p-3 rounded-lg border-2 border-red-500 text-red-400 bg-red-500/10 font-bold hover:bg-red-500/20" onClick={handleCancel}>
-          ✕ Cancel
-        </button>
+        <div className="space-y-4">
+          <button 
+            onClick={handleCancel}
+            className="w-full py-4 rounded-xl border-2 border-error bg-error/10 text-error font-semibold hover:bg-error/20 transition-all flex items-center justify-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            Cancel Search
+          </button>
+          
+          {/* Searching Animation */}
+          <div className="p-6 rounded-xl bg-surface-elevated border border-border">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="flex gap-1">
+                <span className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                <span className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                <span className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+              </div>
+              <span className="text-accent font-medium">Searching for opponent...</span>
+            </div>
+            <div className="text-center text-3xl font-mono font-bold text-text">
+              {formatTime(searchTime)}
+            </div>
+          </div>
+        </div>
       ) : (
         <button
-          className="w-full p-3 rounded-lg bg-gradient-to-br from-primary to-secondary text-white font-bold hover:opacity-90 disabled:opacity-50"
           onClick={handleSearch}
           disabled={!connected}
+          className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2"
         >
-          ⚔️ Find Match
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          Find Match
         </button>
-      )}
-
-      {searching && (
-        <div className="mt-4 p-4 rounded-lg border-l-4 border-primary bg-primary/10">
-          <div className="font-bold">🔍 Searching... {Math.floor(searchTime / 60)}:{(searchTime % 60).toString().padStart(2, '0')}</div>
-          <p className="text-sm text-text-secondary mt-1">Waiting for opponent</p>
-        </div>
       )}
     </div>
   );

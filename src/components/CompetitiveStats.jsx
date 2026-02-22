@@ -10,13 +10,13 @@ export default function CompetitiveStats({ profiles, stats, onAddClick }) {
   const loadPlatformData = () => {
     const cards = [];
 
-    // LeetCode - using real data from API
     if (profiles.leetcode) {
       const lc = stats?.leetCode;
       cards.push({
         platform: 'LeetCode',
         icon: 'LC',
         iconClass: 'leetcode',
+        bg: 'from-yellow-400/20 to-yellow-600/10',
         stats: lc ? [
           { label: 'Solved', value: lc.totalSolved },
           { label: 'Easy', value: lc.easySolved },
@@ -27,13 +27,13 @@ export default function CompetitiveStats({ profiles, stats, onAddClick }) {
       });
     }
 
-    // CodeChef - using real data from API
     if (profiles.codechef) {
       const cc = stats?.codeChef;
       cards.push({
         platform: 'CodeChef',
         icon: 'CC',
         iconClass: 'codechef',
+        bg: 'from-purple-500/20 to-purple-700/10',
         stats: cc ? [
           { label: 'Rating', value: cc.currentRating || '-' },
           { label: 'Stars', value: cc.stars || '-' }
@@ -42,19 +42,19 @@ export default function CompetitiveStats({ profiles, stats, onAddClick }) {
       });
     }
 
-    // Codeforces - using real data from API
     if (profiles.codeforces) {
       const cf = stats?.codeforces;
       cards.push({
         platform: 'Codeforces',
         icon: 'CF',
         iconClass: 'codeforces',
+        bg: 'from-blue-500/20 to-blue-700/10',
         stats: cf ? [
           { label: 'Rating', value: cf.rating },
-          { label: 'Max Rating', value: cf.maxRating },
+          { label: 'Max', value: cf.maxRating },
           { label: 'Rank', value: cf.rank || '-' },
-          { label: 'Contribution', value: cf.contribution }
-        ] : [{ label: 'Rating', value: '-' }, { label: 'Max Rating', value: '-' }, { label: 'Rank', value: '-' }, { label: 'Contribution', value: '-' }],
+          { label: 'Contrib', value: cf.contribution }
+        ] : [{ label: 'Rating', value: '-' }, { label: 'Max', value: '-' }, { label: 'Rank', value: '-' }, { label: 'Contrib', value: '-' }],
         link: `https://codeforces.com/profile/${profiles.codeforces}`
       });
     }
@@ -62,37 +62,71 @@ export default function CompetitiveStats({ profiles, stats, onAddClick }) {
     setPlatformCards(cards);
   };
 
-  return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6">
-      {platformCards.map((card) => (
-        <div key={card.platform} className="bg-surface border-2 border-border rounded-xl p-6 shadow-sm transition-all relative overflow-hidden group hover:-translate-y-1.5 hover:shadow-lg hover:border-transparent transition-colors duration-300">
-          {/* Border gradient on hover via pseudo element */}
-          <div className="absolute -inset-[2px] bg-gradient-to-br from-primary to-secondary rounded-xl opacity-0 -z-10 transition-opacity duration-300 group-hover:opacity-100"></div>
-          {/* Inner bg to show border */}
-          <div className="absolute inset-0 bg-surface rounded-[10px] -z-10 transition-colors duration-300"></div>
+  if (platformCards.length === 0) {
+    return (
+      <div className="card p-8 text-center">
+        <div className="w-16 h-16 rounded-xl bg-surface-elevated flex items-center justify-center mx-auto mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+        </div>
+        <p className="text-lg font-medium mb-2">No platforms connected</p>
+        <p className="text-text-secondary text-sm mb-6">
+          Connect your coding profiles to showcase your stats
+        </p>
+        <button onClick={onAddClick} className="btn-primary">
+          Connect Platforms
+        </button>
+      </div>
+    );
+  }
 
-          <div className="flex items-center gap-4 mb-4 pb-4 border-b border-border">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg text-white shadow-[0_4px_12px_rgba(0,0,0,0.2)] transition-all group-hover:scale-110 group-hover:rotate-6 ${card.iconClass === 'leetcode' ? 'bg-[#fbbf24]' :
-              card.iconClass === 'codechef' ? 'bg-[#9400d3]' :
-                card.iconClass === 'codeforces' ? 'bg-[#1f95cf]' : 'bg-gray-400'
-              }`}>
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {platformCards.map((card) => (
+        <div key={card.platform} className="card p-6 group">
+          <div className="flex items-center gap-4 mb-4">
+            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${card.bg} flex items-center justify-center font-bold text-lg`}>
               {card.icon}
             </div>
-            <div className="text-[1.1rem] font-bold text-text">{card.platform}</div>
+            <div className="text-lg font-bold">{card.platform}</div>
           </div>
-          <div className="grid grid-cols-2 gap-4 mt-4 text-center">
+          
+          <div className="grid grid-cols-2 gap-4 mb-4">
             {card.stats.map((stat) => (
-              <div key={stat.label}>
-                <div className="text-[1.5rem] font-bold text-primary">{stat.value}</div>
-                <div className="text-[0.8rem] text-text-secondary">{stat.label}</div>
+              <div key={stat.label} className="text-center">
+                <div className="text-2xl font-bold text-accent">{stat.value}</div>
+                <div className="text-xs text-text-muted">{stat.label}</div>
               </div>
             ))}
           </div>
-          <a href={card.link} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-2 text-primary text-[0.9rem] font-semibold transition-all px-4 py-2 rounded-md bg-primary-light hover:bg-primary hover:text-white hover:translate-x-1">
-            View Profile →
+          
+          <a 
+            href={card.link} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="inline-flex items-center gap-2 text-sm text-accent hover:text-accent/80 transition-colors"
+          >
+            View Profile
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
           </a>
         </div>
       ))}
+      
+      <button onClick={onAddClick} className="card p-6 border-dashed hover:border-accent/50 flex flex-col items-center justify-center min-h-[200px] group">
+        <div className="w-12 h-12 rounded-xl bg-surface-elevated flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted group-hover:text-accent transition-colors">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </div>
+        <span className="text-text-muted group-hover:text-accent transition-colors">Add more platforms</span>
+      </button>
     </div>
   );
 }
