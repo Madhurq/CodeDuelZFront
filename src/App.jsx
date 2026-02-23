@@ -1,5 +1,6 @@
 // src/App.jsx
 import { useState, useEffect } from 'react';
+import { useWebSocket } from './hooks/useWebSocket';
 import { auth } from './config/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import Navbar from './components/Navbar';
@@ -11,6 +12,7 @@ import MatchArena from './pages/MatchArena';
 import Login from './pages/Login';
 import LandingPage from './pages/LandingPage';
 import Friends from './pages/Friends';
+import ChallengeModal from './components/ChallengeModal';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -20,6 +22,15 @@ function App() {
   const [matchSettings, setMatchSettings] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
+  const [declinedToast, setDeclinedToast] = useState('');
+
+  const username = user?.email?.split('@')[0] || null;
+  const {
+    connected, matchData, joinQueue, leaveQueue, clearMatchData,
+    sendChallenge, respondChallenge,
+    challengeRequest, challengeResponse,
+    clearChallengeRequest, clearChallengeResponse,
+  } = useWebSocket(username);
 
   // Set dark mode by default
   useEffect(() => {
@@ -32,9 +43,17 @@ function App() {
       setUser(currentUser);
       setLoading(false);
     });
-
     return unsubscribe;
   }, []);
+
+  // When challenged user's response arrives (CHALLENGE_DECLINED), show a toast
+  useEffect(() => {
+    if (challengeResponse?.type === 'CHALLENGE_DECLINED') {
+      setDeclinedToast(`${challengeResponse.byUsername} declined your challenge`);
+      clearChallengeResponse();
+      setTimeout(() => setDeclinedToast(''), 4000);
+    }
+  }, [challengeResponse, clearChallengeResponse]);
 
   const handlePageChange = (page) => {
     setIsPageTransitioning(true);
@@ -74,6 +93,17 @@ function App() {
     handlePageChange('home');
   };
 
+  // Accept incoming challenge: respond via WS; match data will arrive via /topic/user/{username}
+  const handleAcceptChallenge = (difficulty) => {
+    respondChallenge(challengeRequest.fromUsername, true, difficulty);
+    clearChallengeRequest();
+  };
+
+  const handleDeclineChallenge = () => {
+    respondChallenge(challengeRequest.fromUsername, false, 'medium');
+    clearChallengeRequest();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -104,17 +134,32 @@ function App() {
 
   return (
     <>
+      {/* Global challenge modal (shown on any page) */}
+      <ChallengeModal
+        challengeRequest={challengeRequest}
+        onAccept={handleAcceptChallenge}
+        onDecline={handleDeclineChallenge}
+      />
+
+      {/* Declined toast */}
+      {declinedToast && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[150] px-6 py-3 rounded-xl bg-error/20 border border-error/40 text-error font-medium shadow-lg animate-fade-in">
+          {declinedToast}
+        </div>
+      )}
+
       {showNavbar && (
         <Navbar
           currentPage={currentPage}
           onPageChange={handlePageChange}
           user={user}
           onLogout={handleLogout}
+          isOnline={connected}
         />
       )}
       <div className={`transition-all duration-200 ${isPageTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'}`}>
-        {currentPage === 'home' && <Home user={user} onStartMatch={handleStartMatch} />}
-        {currentPage === 'friends' && <Friends user={user} onStartMatch={handleStartMatch} />}
+        {currentPage === 'home' && <Home user={user} onStartMatch={handleStartMatch} wsConnected={connected} wsMatchData={matchData} wsJoinQueue={joinQueue} wsLeaveQueue={leaveQueue} wsClearMatchData={clearMatchData} />}
+        {currentPage === 'friends' && <Friends user={user} onStartMatch={handleStartMatch} wsSendChallenge={sendChallenge} wsMatchData={matchData} wsClearMatchData={clearMatchData} />}
         {currentPage === 'profile' && <Profile user={user} />}
         {currentPage === 'leaderboard' && <Leaderboard onViewProfile={handleViewUserProfile} />}
         {currentPage === 'user-profile' && (

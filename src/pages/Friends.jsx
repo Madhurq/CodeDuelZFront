@@ -8,17 +8,27 @@ import {
   removeFriend,
 } from '../services/api';
 
-export default function Friends({ user, onStartMatch }) {
+export default function Friends({ user, onStartMatch, wsSendChallenge, wsMatchData, wsClearMatchData }) {
   const [friends, setFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addFriendUsername, setAddFriendUsername] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
   const [actionLoading, setActionLoading] = useState(null);
+  const [pendingChallenge, setPendingChallenge] = useState(null); // username we challenged
 
   useEffect(() => {
     loadData();
   }, []);
+
+  // When match data arrives (challenge accepted), navigate to arena
+  useEffect(() => {
+    if (wsMatchData && onStartMatch) {
+      onStartMatch(wsMatchData);
+      if (wsClearMatchData) wsClearMatchData();
+      setPendingChallenge(null);
+    }
+  }, [wsMatchData, onStartMatch, wsClearMatchData]);
 
   const loadData = async () => {
     try {
@@ -103,13 +113,10 @@ export default function Friends({ user, onStartMatch }) {
   };
 
   const handleChallengeFriend = (friend) => {
-    if (onStartMatch) {
-      onStartMatch({
-        opponentId: friend.userId,
-        opponentName: friend.username,
-        difficulty: 'medium',
-        language: 'cpp',
-      });
+    if (wsSendChallenge) {
+      wsSendChallenge(friend.username);
+      setPendingChallenge(friend.username);
+      showMessage('success', `Challenge sent to ${friend.username}! Waiting for response...`);
     }
   };
 
@@ -136,11 +143,10 @@ export default function Friends({ user, onStartMatch }) {
 
         {/* Toast Message */}
         {message.text && (
-          <div className={`mb-6 p-4 rounded-lg border-l-4 ${
-            message.type === 'success'
+          <div className={`mb-6 p-4 rounded-lg border-l-4 ${message.type === 'success'
               ? 'bg-success/10 border-success text-success'
               : 'bg-error/10 border-error text-error'
-          }`}>
+            }`}>
             {message.text}
           </div>
         )}
@@ -296,12 +302,22 @@ export default function Friends({ user, onStartMatch }) {
                                 </div>
                               </div>
                             </div>
-                            <button
-                              onClick={() => handleChallengeFriend(friend)}
-                              className="w-full py-2 rounded-lg bg-accent text-black font-medium hover:shadow-glow transition-all text-sm"
-                            >
-                              Challenge
-                            </button>
+                            {pendingChallenge === friend.username ? (
+                              <button
+                                disabled
+                                className="w-full py-2 rounded-lg bg-accent/20 text-accent border border-accent/40 font-medium text-sm flex items-center justify-center gap-2 cursor-not-allowed"
+                              >
+                                <span className="w-2 h-2 bg-accent rounded-full animate-pulse"></span>
+                                Waiting...
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleChallengeFriend(friend)}
+                                className="w-full py-2 rounded-lg bg-accent text-black font-medium hover:shadow-glow transition-all text-sm"
+                              >
+                                ⚡ Challenge
+                              </button>
+                            )}
                           </div>
                         ))}
                       </div>

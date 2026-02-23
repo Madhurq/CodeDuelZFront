@@ -2,47 +2,49 @@ import { useState, useEffect, useCallback } from 'react';
 import Editor from '@monaco-editor/react';
 import { useWebSocket } from '../hooks/useWebSocket';
 
+// LeetCode-style class/function fallback starters (used only when problem has no snippet)
 const STARTER_CODE = {
-  javascript: `// Write your solution here
-const readline = require('readline');
-const rl = readline.createInterface({ input: process.stdin });
-const lines = [];
-rl.on('line', (line) => lines.push(line));
-rl.on('close', () => {
-    console.log(lines[0]);
-});`,
-  python: `# Write your solution here
-import sys
-input_data = sys.stdin.read().strip().split('\\n')
-print(input_data[0])`,
-  java: `import java.util.*;
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        System.out.println(sc.nextLine());
-    }
+  cpp: `class Solution {
+public:
+    // TODO: implement your solution
+};`,
+  java: `class Solution {
+    // TODO: implement your solution
 }`,
-  cpp: `#include <bits/stdc++.h>
-using namespace std;
-int main() {
-    string line;
-    getline(cin, line);
-    cout << line << endl;
-    return 0;
-}`,
+  python: `class Solution:
+    def solve(self):
+        # TODO: implement your solution
+        pass`,
+  javascript: `/**
+ * @return {*}
+ */
+var solve = function() {
+    // TODO: implement your solution
+};`,
 };
 
-const LANG_TO_SNIPPET_KEY = {
-  cpp: 'cpp',
-  python: 'python3',
-  java: 'java',
-  javascript: 'javascript',
+// LeetCode JSON uses these langSlug keys — try all aliases for each language
+const LANG_SNIPPET_ALIASES = {
+  cpp: ['cpp', 'c++', 'cplusplus'],
+  java: ['java'],
+  python: ['python3', 'python'],
+  javascript: ['javascript', 'js'],
 };
+
+const LANGUAGES = [
+  { value: 'cpp', label: 'C++', icon: '⚙️' },
+  { value: 'java', label: 'Java', icon: '☕' },
+  { value: 'python', label: 'Python', icon: '🐍' },
+  { value: 'javascript', label: 'JavaScript', icon: '🟨' },
+];
 
 function getStarterCode(language, problem) {
-  const snippetKey = LANG_TO_SNIPPET_KEY[language] || language;
-  const snippet = problem?.codeSnippets?.[snippetKey];
-  return snippet || STARTER_CODE[language] || STARTER_CODE.cpp;
+  const aliases = LANG_SNIPPET_ALIASES[language] || [language];
+  for (const key of aliases) {
+    const snippet = problem?.codeSnippets?.[key];
+    if (snippet) return snippet;
+  }
+  return STARTER_CODE[language] || STARTER_CODE.cpp;
 }
 
 export default function MatchArena({ matchSettings, onMatchEnd, user }) {
@@ -130,7 +132,7 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
   const currentResult = submitResult || runResult;
 
   const getDifficultyColor = (difficulty) => {
-    switch(difficulty) {
+    switch (difficulty) {
       case 'EASY': return 'bg-success/20 text-success border-success/30';
       case 'MEDIUM': return 'bg-warning/20 text-warning border-warning/30';
       case 'HARD': return 'bg-error/20 text-error border-error/30';
@@ -158,18 +160,17 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
             </span>
           )}
         </div>
-        
+
         <div className="flex items-center gap-4">
           {/* Timer */}
-          <div className={`relative px-4 py-2 rounded-lg font-mono font-bold text-lg ${
-            timeLeft < 60 
-              ? 'bg-error/20 text-error animate-pulse' 
+          <div className={`relative px-4 py-2 rounded-lg font-mono font-bold text-lg ${timeLeft < 60
+              ? 'bg-error/20 text-error animate-pulse'
               : 'bg-surface-elevated text-text'
-          }`}>
+            }`}>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent animate-pulse"></div>
             <span className="relative z-10">⏱ {formatTime(timeLeft)}</span>
           </div>
-          
+
           {opponent && (
             <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-elevated border border-border">
               <span className="text-xs text-text-muted">vs</span>
@@ -177,9 +178,9 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
               <span className="w-2 h-2 bg-success rounded-full animate-pulse"></span>
             </div>
           )}
-          
-          <button 
-            onClick={() => onMatchEnd && onMatchEnd(false)} 
+
+          <button
+            onClick={() => onMatchEnd && onMatchEnd(false)}
             className="px-4 py-2 rounded-lg bg-error/10 text-error hover:bg-error/20 font-medium transition-colors flex items-center gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -201,7 +202,7 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                 <h2 className="text-2xl font-bold text-text mb-3">{problem.title}</h2>
                 {problem.url && (
                   <a href={problem.url} target="_blank" rel="noopener noreferrer" className="text-accent text-xs hover:underline mb-4 inline-flex items-center gap-1">
-                    View on LeetCode 
+                    View on LeetCode
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                       <polyline points="15 3 21 3 21 9"></polyline>
@@ -209,7 +210,7 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                     </svg>
                   </a>
                 )}
-                
+
                 <div className="text-text-secondary text-sm whitespace-pre-wrap leading-relaxed mb-6">
                   {problem.description}
                 </div>
@@ -222,7 +223,7 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                           Example {ex.num}
                         </div>
                         <pre className="p-4 text-sm text-text-secondary whitespace-pre-wrap bg-background font-mono">
-{ex.text}
+                          {ex.text}
                         </pre>
                       </div>
                     ))}
@@ -261,19 +262,25 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
         <div className="flex-1 flex flex-col min-w-0">
           {/* Editor Toolbar */}
           <div className="bg-[#0d0d10] border-b border-border px-4 py-2 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="bg-surface-elevated border border-border rounded-lg px-3 py-1.5 text-sm text-text"
-              >
-                <option value="cpp">C++</option>
-                <option value="python">Python</option>
-                <option value="java">Java</option>
-                <option value="javascript">JavaScript</option>
-              </select>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-text-muted font-medium">Language</span>
+              <div className="flex bg-surface-elevated rounded-lg border border-border overflow-hidden">
+                {LANGUAGES.map((lang) => (
+                  <button
+                    key={lang.value}
+                    onClick={() => setLanguage(lang.value)}
+                    className={`px-3 py-1.5 text-sm font-medium transition-all flex items-center gap-1.5 ${language === lang.value
+                        ? 'bg-accent text-black'
+                        : 'text-text-secondary hover:text-text hover:bg-surface'
+                      }`}
+                  >
+                    <span>{lang.icon}</span>
+                    <span className="hidden sm:inline">{lang.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-            
+
             <div className="flex items-center gap-3">
               <button
                 onClick={handleRun}
@@ -297,7 +304,7 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                   </>
                 )}
               </button>
-              
+
               <button
                 onClick={handleSubmit}
                 disabled={matchStatus !== 'in_progress' || isRunning || isSubmitting}
@@ -331,10 +338,10 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
               theme="vs-dark"
               value={code}
               onChange={(v) => setCode(v || '')}
-              options={{ 
-                fontSize: 14, 
+              options={{
+                fontSize: 14,
                 fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-                minimap: { enabled: false }, 
+                minimap: { enabled: false },
                 padding: { top: 16 },
                 scrollBeyondLastLine: false,
                 lineNumbers: 'on',
@@ -355,21 +362,19 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
               <div className="flex gap-1">
                 <button
                   onClick={() => setActiveTab('testcases')}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-t-lg transition-colors ${
-                    activeTab === 'testcases'
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-t-lg transition-colors ${activeTab === 'testcases'
                       ? 'text-text bg-surface-elevated border border-b-0 border-border'
                       : 'text-text-secondary hover:text-text'
-                  }`}
+                    }`}
                 >
                   Test Cases
                 </button>
                 <button
                   onClick={() => setActiveTab('output')}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-t-lg transition-colors flex items-center gap-1.5 ${
-                    activeTab === 'output'
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-t-lg transition-colors flex items-center gap-1.5 ${activeTab === 'output'
                       ? 'text-text bg-surface-elevated border border-b-0 border-border'
                       : 'text-text-secondary hover:text-text'
-                  }`}
+                    }`}
                 >
                   Output
                   {currentResult && (
@@ -378,11 +383,10 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                 </button>
               </div>
               {currentResult && (
-                <div className={`text-xs font-bold px-2 py-0.5 rounded ${
-                  currentResult.status === 'ACCEPTED'
+                <div className={`text-xs font-bold px-2 py-0.5 rounded ${currentResult.status === 'ACCEPTED'
                     ? 'bg-success/20 text-success'
                     : 'bg-error/20 text-error'
-                }`}>
+                  }`}>
                   {currentResult.status === 'ACCEPTED'
                     ? `✓ ${currentResult.totalPassed}/${currentResult.totalTests}`
                     : `✗ ${currentResult.totalPassed}/${currentResult.totalTests}`}
@@ -441,11 +445,10 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                       )}
 
                       {currentResult.testCaseResults?.map((tc, i) => (
-                        <div key={i} className={`mb-2 rounded-lg p-3 border ${
-                          tc.passed
+                        <div key={i} className={`mb-2 rounded-lg p-3 border ${tc.passed
                             ? 'bg-success/5 border-success/20'
                             : 'bg-error/5 border-error/20'
-                        }`}>
+                          }`}>
                           <div className="flex items-center gap-2 mb-2">
                             <span className={`text-sm ${tc.passed ? 'text-success' : 'text-error'}`}>
                               {tc.passed ? '✓' : '✗'}
@@ -465,11 +468,10 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                             </div>
                             <div>
                               <div className="text-xs text-text-muted mb-1">Output</div>
-                              <pre className={`text-xs rounded p-2 whitespace-pre-wrap max-h-20 overflow-auto ${
-                                tc.passed 
-                                  ? 'text-success bg-success/5' 
+                              <pre className={`text-xs rounded p-2 whitespace-pre-wrap max-h-20 overflow-auto ${tc.passed
+                                  ? 'text-success bg-success/5'
                                   : 'text-error bg-error/5'
-                              }`}>{tc.actualOutput || '(empty)'}</pre>
+                                }`}>{tc.actualOutput || '(empty)'}</pre>
                             </div>
                           </div>
                         </div>
@@ -493,11 +495,10 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
       {matchStatus !== 'in_progress' && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-surface border border-border rounded-2xl p-8 max-w-md w-full text-center scale-in">
-            <div className={`w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center ${
-              matchStatus === 'won' 
-                ? 'bg-success/20' 
+            <div className={`w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center ${matchStatus === 'won'
+                ? 'bg-success/20'
                 : 'bg-error/20'
-            }`}>
+              }`}>
               {matchStatus === 'won' ? (
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-success">
                   <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
@@ -515,27 +516,26 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                 </svg>
               )}
             </div>
-            
-            <h2 className={`text-4xl font-black mb-4 ${
-              matchStatus === 'won' ? 'text-success' : 'text-error'
-            }`}>
+
+            <h2 className={`text-4xl font-black mb-4 ${matchStatus === 'won' ? 'text-success' : 'text-error'
+              }`}>
               {matchStatus === 'won' ? 'VICTORY!' : 'DEFEAT'}
             </h2>
-            
+
             <p className="text-text-secondary mb-4">
-              {matchStatus === 'won' 
-                ? 'You solved it first! Amazing work!' 
+              {matchStatus === 'won'
+                ? 'You solved it first! Amazing work!'
                 : 'Better luck next time. Keep practicing!'}
             </p>
-            
+
             {submitResult && (
               <p className="text-sm text-text-muted mb-6">
                 Test Cases: {submitResult.totalPassed}/{submitResult.totalTests} passed
               </p>
             )}
-            
-            <button 
-              onClick={() => onMatchEnd && onMatchEnd(matchStatus === 'won')} 
+
+            <button
+              onClick={() => onMatchEnd && onMatchEnd(matchStatus === 'won')}
               className="btn-primary w-full py-4"
             >
               Return to Dashboard

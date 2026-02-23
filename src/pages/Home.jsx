@@ -5,7 +5,7 @@ import MatchHistory from '../components/MatchHistory';
 import { apiGet } from '../services/api';
 import logo from '../assets/logo.png';
 
-export default function Home({ user, onStartMatch }) {
+export default function Home({ user, onStartMatch, wsConnected, wsMatchData, wsJoinQueue, wsLeaveQueue, wsClearMatchData }) {
   const [stats, setStats] = useState({
     matches: 0,
     wins: 0,
@@ -75,7 +75,7 @@ export default function Home({ user, onStartMatch }) {
 
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 mb-12">
-          <MatchSearch onMatchFound={handleMatchFound} username={user?.email?.split('@')[0]} />
+          <MatchSearch onMatchFound={handleMatchFound} username={user?.email?.split('@')[0]} wsConnected={wsConnected} wsMatchData={wsMatchData} wsJoinQueue={wsJoinQueue} wsLeaveQueue={wsLeaveQueue} wsClearMatchData={wsClearMatchData} />
           <QuickStats stats={stats} loading={loading} />
         </div>
 

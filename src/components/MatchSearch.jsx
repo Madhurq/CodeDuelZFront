@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useWebSocket } from '../hooks/useWebSocket';
 
-export default function MatchSearch({ onMatchFound, username }) {
+export default function MatchSearch({ onMatchFound, username, wsConnected, wsMatchData, wsJoinQueue, wsLeaveQueue, wsClearMatchData }) {
   const [difficulty, setDifficulty] = useState('easy');
   const [language, setLanguage] = useState('cpp');
-  const { connected, matchData, joinQueue, leaveQueue, clearMatchData } = useWebSocket(username);
+  const connected = wsConnected;
+  const matchData = wsMatchData;
+  const joinQueue = wsJoinQueue;
+  const leaveQueue = wsLeaveQueue;
+  const clearMatchData = wsClearMatchData;
   const [searching, setSearching] = useState(false);
   const [searchTime, setSearchTime] = useState(0);
 
@@ -54,11 +57,10 @@ export default function MatchSearch({ onMatchFound, username }) {
             <p className="text-text-secondary text-sm">Challenge a random opponent</p>
           </div>
         </div>
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
-          connected 
-            ? 'bg-success/10 text-success' 
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${connected
+            ? 'bg-success/10 text-success'
             : 'bg-error/10 text-error'
-        }`}>
+          }`}>
           <span className={`w-2 h-2 rounded-full ${connected ? 'bg-success' : 'bg-error'} ${connected && 'animate-pulse'}`}></span>
           {connected ? 'Online' : 'Offline'}
         </div>
@@ -77,15 +79,14 @@ export default function MatchSearch({ onMatchFound, username }) {
               key={level.value}
               onClick={() => setDifficulty(level.value)}
               disabled={searching}
-              className={`relative p-4 rounded-xl border-2 font-semibold transition-all duration-200 ${
-                difficulty === level.value
-                  ? level.value === 'easy' 
+              className={`relative p-4 rounded-xl border-2 font-semibold transition-all duration-200 ${difficulty === level.value
+                  ? level.value === 'easy'
                     ? 'border-success bg-success/10 text-success'
                     : level.value === 'medium'
                       ? 'border-warning bg-warning/10 text-warning'
                       : 'border-error bg-error/10 text-error'
                   : 'border-border hover:border-border-light text-text-secondary hover:text-text'
-              }`}
+                }`}
             >
               <span className="text-xl mb-1 block">{level.icon}</span>
               {level.label}
@@ -120,7 +121,7 @@ export default function MatchSearch({ onMatchFound, username }) {
       {/* Action Button */}
       {searching ? (
         <div className="space-y-4">
-          <button 
+          <button
             onClick={handleCancel}
             className="w-full py-4 rounded-xl border-2 border-error bg-error/10 text-error font-semibold hover:bg-error/20 transition-all flex items-center justify-center gap-2"
           >
@@ -130,7 +131,7 @@ export default function MatchSearch({ onMatchFound, username }) {
             </svg>
             Cancel Search
           </button>
-          
+
           {/* Searching Animation */}
           <div className="p-6 rounded-xl bg-surface-elevated border border-border">
             <div className="flex items-center justify-center gap-3 mb-4">

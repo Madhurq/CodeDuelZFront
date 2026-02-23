@@ -77,9 +77,10 @@ const CloseIcon = () => (
   </svg>
 );
 
-export default function Navbar({ currentPage, onPageChange, user, onLogout }) {
+export default function Navbar({ currentPage, onPageChange, user, onLogout, isOnline }) {
   const [isDark, setIsDark] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
 
   useEffect(() => {
     const saved = localStorage.getItem('theme');
@@ -134,11 +135,10 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout }) {
               <button
                 key={item.id}
                 onClick={() => onPageChange(item.id)}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  currentPage === item.id
-                    ? 'text-accent bg-accent/10'
-                    : 'text-text-secondary hover:text-text hover:bg-surface-elevated'
-                }`}
+                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${currentPage === item.id
+                  ? 'text-accent bg-accent/10'
+                  : 'text-text-secondary hover:text-text hover:bg-surface-elevated'
+                  }`}
               >
                 {item.icon}
                 {item.label}
@@ -166,9 +166,9 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout }) {
                 <span className="text-sm font-medium text-text">
                   {user?.email?.split('@')[0] || user?.displayName || 'Player'}
                 </span>
-                <span className="text-xs text-success flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse"></span>
-                  Online
+                <span className={`text-xs flex items-center gap-1 ${isOnline ? 'text-success' : 'text-error'}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-success animate-pulse' : 'bg-error'}`}></span>
+                  {isOnline ? 'Online' : 'Offline'}
                 </span>
               </div>
               <button
@@ -192,10 +192,9 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout }) {
       </div>
 
       {/* Mobile Menu */}
-      <div 
-        className={`md:hidden absolute top-16 left-0 right-0 bg-surface border-b border-border shadow-lg transition-all duration-300 ${
-          mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
-        }`}
+      <div
+        className={`md:hidden absolute top-16 left-0 right-0 bg-surface border-b border-border shadow-lg transition-all duration-300 ${mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
+          }`}
       >
         <div className="px-4 py-4 space-y-2">
           {navItems.map((item) => (
@@ -205,11 +204,10 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout }) {
                 onPageChange(item.id);
                 setMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                currentPage === item.id
-                  ? 'text-accent bg-accent/10'
-                  : 'text-text-secondary hover:text-text hover:bg-surface-elevated'
-              }`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${currentPage === item.id
+                ? 'text-accent bg-accent/10'
+                : 'text-text-secondary hover:text-text hover:bg-surface-elevated'
+                }`}
             >
               {item.icon}
               {item.label}

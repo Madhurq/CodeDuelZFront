@@ -10,6 +10,8 @@ export function useWebSocket(username) {
     const [submitResult, setSubmitResult] = useState(null);
     const [isRunning, setIsRunning] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [challengeRequest, setChallengeRequest] = useState(null);   // incoming: { fromUsername }
+    const [challengeResponse, setChallengeResponse] = useState(null); // outgoing response: { type, byUsername }
     const clientRef = useRef(null);
 
     useEffect(() => {
@@ -32,10 +34,27 @@ export function useWebSocket(username) {
                     console.log('WebSocket connected for', username);
                     setConnected(true);
 
-                    // Subscribe to match found events
+                    // Announce presence so friends list shows this user as online
+                    client.publish({
+                        destination: '/app/user/online',
+                        body: JSON.stringify({ username }),
+                    });
+
+                    // Subscribe to match found events (normal matchmaking + accepted challenges)
                     client.subscribe(`/topic/user/${username}`, (msg) => {
                         console.log('Match found:', msg.body);
                         setMatchData(JSON.parse(msg.body));
+                    });
+
+                    // Subscribe to challenge events (incoming request or response to our request)
+                    client.subscribe(`/topic/user/${username}/challenge`, (msg) => {
+                        const data = JSON.parse(msg.body);
+                        console.log('Challenge event:', data);
+                        if (data.type === 'CHALLENGE_REQUEST') {
+                            setChallengeRequest(data); // show modal to this user
+                        } else if (data.type === 'CHALLENGE_DECLINED') {
+                            setChallengeResponse(data); // notify challenger it was declined
+                        }
                     });
 
                     // Subscribe to run results (▶ Run button)
@@ -86,6 +105,24 @@ export function useWebSocket(username) {
         }
     }, [username]);
 
+    const sendChallenge = useCallback((toUsername) => {
+        if (clientRef.current?.connected) {
+            clientRef.current.publish({
+                destination: '/app/challenge/send',
+                body: JSON.stringify({ fromUsername: username, toUsername }),
+            });
+        }
+    }, [username]);
+
+    const respondChallenge = useCallback((fromUsername, accepted, difficulty) => {
+        if (clientRef.current?.connected) {
+            clientRef.current.publish({
+                destination: '/app/challenge/respond',
+                body: JSON.stringify({ fromUsername, toUsername: username, accepted: String(accepted), difficulty }),
+            });
+        }
+    }, [username]);
+
     const subscribeToMatch = useCallback((matchId) => {
         if (clientRef.current?.connected) {
             clientRef.current.subscribe(`/topic/match/${matchId}`, (msg) => {
@@ -124,8 +161,12 @@ export function useWebSocket(username) {
         submitResult,
         isRunning,
         isSubmitting,
+        challengeRequest,
+        challengeResponse,
         joinQueue,
         leaveQueue,
+        sendChallenge,
+        respondChallenge,
         subscribeToMatch,
         runCode,
         submitCode,
@@ -133,5 +174,7 @@ export function useWebSocket(username) {
         clearMatchResult: () => setMatchResult(null),
         clearRunResult: () => setRunResult(null),
         clearSubmitResult: () => setSubmitResult(null),
+        clearChallengeRequest: () => setChallengeRequest(null),
+        clearChallengeResponse: () => setChallengeResponse(null),
     };
 }
