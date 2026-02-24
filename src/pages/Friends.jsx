@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   getFriends,
   getPendingRequests,
@@ -15,10 +15,25 @@ export default function Friends({ user, onStartMatch, wsSendChallenge, wsMatchDa
   const [addFriendUsername, setAddFriendUsername] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
   const [actionLoading, setActionLoading] = useState(null);
-  const [pendingChallenge, setPendingChallenge] = useState(null); // username we challenged
+  const [pendingChallenge, setPendingChallenge] = useState(null);
+  const [lastRefreshed, setLastRefreshed] = useState(null);
+  const pollRef = useRef(null);
 
   useEffect(() => {
     loadData();
+
+    // Poll online status silently every 10 seconds
+    pollRef.current = setInterval(async () => {
+      try {
+        const freshFriends = await getFriends();
+        if (freshFriends) {
+          setFriends(freshFriends);
+          setLastRefreshed(new Date());
+        }
+      } catch (_) { /* silent — don't disrupt UI */ }
+    }, 10000);
+
+    return () => clearInterval(pollRef.current);
   }, []);
 
   // When match data arrives (challenge accepted), navigate to arena
@@ -39,6 +54,7 @@ export default function Friends({ user, onStartMatch, wsSendChallenge, wsMatchDa
       ]);
       setFriends(friendsData || []);
       setPendingRequests(requestsData || []);
+      setLastRefreshed(new Date());
     } catch (error) {
       console.error('Error loading friends data:', error);
       showMessage('error', 'Failed to load friends data');
@@ -113,12 +129,27 @@ export default function Friends({ user, onStartMatch, wsSendChallenge, wsMatchDa
   };
 
   const handleChallengeFriend = (friend) => {
+    if (!friend.isOnline) return; // guard: should not be called for offline
     if (wsSendChallenge) {
       wsSendChallenge(friend.username);
       setPendingChallenge(friend.username);
       showMessage('success', `Challenge sent to ${friend.username}! Waiting for response...`);
     }
   };
+
+  const formatLastRefreshed = () => {
+    if (!lastRefreshed) return '';
+    const secs = Math.round((Date.now() - lastRefreshed.getTime()) / 1000);
+    if (secs < 5) return 'just now';
+    return `${secs}s ago`;
+  };
+
+  const [, forceRender] = useState(0);
+  useEffect(() => {
+    // Re-render every 5s so "last refreshed" label ticks live
+    const t = setInterval(() => forceRender(n => n + 1), 5000);
+    return () => clearInterval(t);
+  }, []);
 
   const onlineFriends = friends.filter((f) => f.isOnline);
   const offlineFriends = friends.filter((f) => !f.isOnline);
@@ -132,20 +163,28 @@ export default function Friends({ user, onStartMatch, wsSendChallenge, wsMatchDa
 
       <div className="relative z-10 max-w-[1400px] mx-auto p-6 lg:p-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-black mb-2">
-            Friends <span className="text-gradient">&</span> Rivals
-          </h1>
-          <p className="text-text-secondary text-lg">
-            Connect with developers and challenge them to battles
-          </p>
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h1 className="text-4xl font-black mb-2">
+              Friends <span className="text-gradient">&</span> Rivals
+            </h1>
+            <p className="text-text-secondary text-lg">
+              Connect with developers and challenge them to battles
+            </p>
+          </div>
+          {/* Live status indicator */}
+          <div className="flex items-center gap-2 text-xs text-text-muted bg-surface-elevated border border-border rounded-full px-3 py-1.5">
+            <span className="w-2 h-2 bg-success rounded-full animate-pulse" />
+            <span>Status auto-refreshes every 10s</span>
+            {lastRefreshed && <span className="text-text-muted/60">· {formatLastRefreshed()}</span>}
+          </div>
         </div>
 
         {/* Toast Message */}
         {message.text && (
           <div className={`mb-6 p-4 rounded-lg border-l-4 ${message.type === 'success'
-              ? 'bg-success/10 border-success text-success'
-              : 'bg-error/10 border-error text-error'
+            ? 'bg-success/10 border-success text-success'
+            : 'bg-error/10 border-error text-error'
             }`}>
             {message.text}
           </div>
@@ -332,7 +371,7 @@ export default function Friends({ user, onStartMatch, wsSendChallenge, wsMatchDa
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {offlineFriends.map((friend) => (
-                          <div key={friend.friendId} className="p-4 bg-surface-elevated border border-border rounded-xl hover:border-border-light transition-all">
+                          <div key={friend.friendId} className="p-4 bg-surface-elevated border border-border rounded-xl opacity-70">
                             <div className="flex items-center gap-3 mb-3">
                               <div className="w-10 h-10 rounded-lg bg-surface-hover flex items-center justify-center text-text-muted font-bold">
                                 {friend.username.charAt(0).toUpperCase()}
@@ -343,10 +382,11 @@ export default function Friends({ user, onStartMatch, wsSendChallenge, wsMatchDa
                               </div>
                             </div>
                             <button
-                              onClick={() => handleChallengeFriend(friend)}
-                              className="w-full py-2 rounded-lg bg-surface border border-border text-text-secondary font-medium hover:border-accent hover:text-accent transition-all text-sm"
+                              disabled
+                              title="Friend is offline — cannot challenge"
+                              className="w-full py-2 rounded-lg bg-surface border border-border text-text-muted font-medium text-sm cursor-not-allowed opacity-50"
                             >
-                              Challenge
+                              🚫 Offline
                             </button>
                           </div>
                         ))}

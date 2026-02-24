@@ -1,14 +1,25 @@
 import { useState, useEffect } from 'react';
 import { getMatchHistory } from '../services/api';
 
-export default function MatchHistory({ onViewProfile }) {
-  const [matches, setMatches] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function MatchHistory({ onViewProfile, matches: propMatches, loading: propLoading }) {
+  const [matches, setMatches] = useState(propMatches || []);
+  const [loading, setLoading] = useState(propLoading !== undefined ? propLoading : true);
   const [error, setError] = useState(null);
 
+  // If parent provides matches, use them; otherwise fetch ourselves
+  const isControlled = propMatches !== undefined;
+
   useEffect(() => {
-    fetchMatchHistory();
-  }, []);
+    if (!isControlled) fetchMatchHistory();
+  }, [isControlled]);
+
+  useEffect(() => {
+    if (isControlled && propMatches !== undefined) setMatches(propMatches);
+  }, [propMatches, isControlled]);
+
+  useEffect(() => {
+    if (isControlled && propLoading !== undefined) setLoading(propLoading);
+  }, [propLoading, isControlled]);
 
   const fetchMatchHistory = async () => {
     try {
@@ -124,23 +135,21 @@ export default function MatchHistory({ onViewProfile }) {
           {matches.map((match) => (
             <div
               key={match.matchId}
-              className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.01] ${
-                match.result === 'WIN'
+              className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.01] ${match.result === 'WIN'
                   ? 'bg-success/5 border-success/20 hover:border-success/40'
                   : match.result === 'LOSS'
                     ? 'bg-error/5 border-error/20 hover:border-error/40'
                     : 'bg-warning/5 border-warning/20 hover:border-warning/40'
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    match.result === 'WIN'
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${match.result === 'WIN'
                       ? 'bg-success/20'
                       : match.result === 'LOSS'
                         ? 'bg-error/20'
                         : 'bg-warning/20'
-                  }`}>
+                    }`}>
                     {match.result === 'WIN' ? (
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-success">
                         <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
@@ -166,14 +175,13 @@ export default function MatchHistory({ onViewProfile }) {
                     )}
                   </div>
                   <div>
-                    <div className={`font-bold ${
-                      match.result === 'WIN'
+                    <div className={`font-bold ${match.result === 'WIN'
                         ? 'text-success'
                         : match.result === 'LOSS'
                           ? 'text-error'
                           : 'text-warning'
-                    }`}>
-                      {match.result === 'WIN' ? 'Victory' : match.result === 'LOSS' ? 'Defeat' : 'Draw'}
+                      }`}>
+                      {match.result === 'WIN' ? 'Victory' : match.result === 'LOSS' ? 'Defeat' : 'No Result'}
                     </div>
                     <div className="text-sm text-text-secondary">
                       vs {match.opponentName || `Player #${match.opponentId?.slice(0, 8)}`}
@@ -207,7 +215,7 @@ export default function MatchHistory({ onViewProfile }) {
           </div>
           <div>
             <div className="text-2xl font-bold text-warning">{matches.length - matches.filter(m => m.result === 'WIN').length - matches.filter(m => m.result === 'LOSS').length}</div>
-            <div className="text-xs text-text-secondary">Draws</div>
+            <div className="text-xs text-text-secondary">No Result</div>
           </div>
         </div>
       )}

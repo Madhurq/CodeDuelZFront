@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import MatchSearch from '../components/MatchSearch';
 import QuickStats from '../components/QuickStats';
 import MatchHistory from '../components/MatchHistory';
-import { apiGet } from '../services/api';
+import { apiGet, getMatchHistory } from '../services/api';
 import logo from '../assets/logo.png';
 
 export default function Home({ user, onStartMatch, wsConnected, wsMatchData, wsJoinQueue, wsLeaveQueue, wsClearMatchData }) {
@@ -13,44 +13,56 @@ export default function Home({ user, onStartMatch, wsConnected, wsMatchData, wsJ
     rating: 1000,
     winRate: 0
   });
-  const [loading, setLoading] = useState(false);
+  const [matches, setMatches] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   useEffect(() => {
     if (!user) return;
 
-    const loadStats = async () => {
+    const loadData = async () => {
       try {
-        setLoading(true);
-        const data = await apiGet('/profile');
-        const totalMatches = (data.wins || 0) + (data.losses || 0);
+        setHistoryLoading(true);
+
+        // Load both match history and profile rating in parallel
+        const [matchData, profileData] = await Promise.all([
+          getMatchHistory().catch(() => []),
+          apiGet('/profile').catch(() => ({})),
+        ]);
+
+        const safeMatches = matchData || [];
+        setMatches(safeMatches);
+
+        // Only count decisive matches (WIN or LOSS) — exclude No Result / abandoned
+        const wins = safeMatches.filter(m => m.result === 'WIN').length;
+        const losses = safeMatches.filter(m => m.result === 'LOSS').length;
+        const decisive = wins + losses; // No Result matches excluded
+
         setStats({
-          matches: totalMatches,
-          wins: data.wins || 0,
-          losses: data.losses || 0,
-          rating: data.rating || 1000,
-          winRate: totalMatches > 0 ? Math.round((data.wins / totalMatches) * 100) : 0
+          matches: decisive,
+          wins,
+          losses,
+          rating: profileData?.rating || 1000,
+          winRate: decisive > 0 ? Math.round((wins / decisive) * 100) : 0,
         });
       } catch (error) {
-        console.error('Error loading stats:', error);
+        console.error('Error loading home data:', error);
       } finally {
-        setLoading(false);
+        setHistoryLoading(false);
       }
     };
 
-    loadStats();
+    loadData();
   }, [user]);
 
   const handleMatchFound = (settings) => {
-    if (onStartMatch) {
-      onStartMatch(settings);
-    }
+    if (onStartMatch) onStartMatch(settings);
   };
 
   const steps = [
-    { num: '01', title: 'Find Match', desc: 'Search for a random opponent or challenge a friend', icon: '🔍', action: 'search' },
-    { num: '02', title: 'Get Problem', desc: 'Both players receive the same coding challenge', icon: '📝', action: 'match' },
-    { num: '03', title: 'Code Battle', desc: 'Solve faster than your opponent to win', icon: '⚡', action: 'match' },
-    { num: '04', title: 'Climb Ranks', desc: 'Win matches to increase your rating', icon: '🏆', action: 'leaderboard' },
+    { num: '01', title: 'Find Match', desc: 'Search for a random opponent or challenge a friend', icon: '🔍' },
+    { num: '02', title: 'Get Problem', desc: 'Both players receive the same coding challenge', icon: '📝' },
+    { num: '03', title: 'Code Battle', desc: 'Solve faster than your opponent to win', icon: '⚡' },
+    { num: '04', title: 'Climb Ranks', desc: 'Win matches to increase your rating', icon: '🏆' },
   ];
 
   return (
@@ -76,12 +88,12 @@ export default function Home({ user, onStartMatch, wsConnected, wsMatchData, wsJ
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 mb-12">
           <MatchSearch onMatchFound={handleMatchFound} username={user?.email?.split('@')[0]} wsConnected={wsConnected} wsMatchData={wsMatchData} wsJoinQueue={wsJoinQueue} wsLeaveQueue={wsLeaveQueue} wsClearMatchData={wsClearMatchData} />
-          <QuickStats stats={stats} loading={loading} />
+          <QuickStats stats={stats} loading={historyLoading} />
         </div>
 
-        {/* Match History */}
+        {/* Match History — driven by the same data as stats */}
         <div className="mb-16">
-          <MatchHistory />
+          <MatchHistory matches={matches} loading={historyLoading} />
         </div>
 
         {/* How It Works */}

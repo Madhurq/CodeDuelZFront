@@ -160,7 +160,7 @@ export default function Profile({ user }) {
             onLogout={handleLogout}
             onAvatarChange={handleAvatarChange}
           />
-          
+
           <div>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -180,6 +180,7 @@ export default function Profile({ user }) {
                 profiles={profiles}
                 stats={stats}
                 onAddClick={() => setEditMode(true)}
+                codeduelzStats={{ wins: profileData.wins, losses: profileData.losses, matches: profileData.matches }}
               />
             )}
 

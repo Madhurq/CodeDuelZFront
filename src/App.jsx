@@ -30,6 +30,7 @@ function App() {
     sendChallenge, respondChallenge,
     challengeRequest, challengeResponse,
     clearChallengeRequest, clearChallengeResponse,
+    goOffline,
   } = useWebSocket(username);
 
   // Set dark mode by default
@@ -65,6 +66,9 @@ function App() {
 
   const handleLogout = async () => {
     try {
+      // Send explicit offline signal BEFORE Firebase signs out
+      // so the backend marks the user offline immediately
+      goOffline();
       setShowLogin(false);
       setCurrentPage('home');
       await signOut(auth);

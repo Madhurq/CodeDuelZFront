@@ -83,7 +83,11 @@ export function useWebSocket(username) {
 
         return () => {
             cancelled = true;
-            clientRef.current?.deactivate();
+            // Clean deactivate — no reconnect on unmount
+            if (clientRef.current) {
+                clientRef.current.reconnectDelay = 0;  // disable auto-reconnect
+                clientRef.current.deactivate();
+            }
         };
     }, [username]);
 
@@ -153,6 +157,34 @@ export function useWebSocket(username) {
         }
     }, [username]);
 
+    // Explicit offline — call this before logout or closing app
+    const goOffline = useCallback(() => {
+        const client = clientRef.current;
+        if (client?.connected) {
+            client.publish({
+                destination: '/app/user/offline',
+                body: JSON.stringify({ username }),
+            });
+            client.reconnectDelay = 0;  // don't reconnect after this
+            client.deactivate();
+        }
+    }, [username]);
+
+    // Mark offline if user closes/refreshes the browser tab
+    useEffect(() => {
+        const handleUnload = () => {
+            const client = clientRef.current;
+            if (client?.connected && username) {
+                // sendBeacon is fire-and-forget — works even on tab close
+                // Fallback: just deactivate (triggers SessionDisconnectEvent)
+                client.reconnectDelay = 0;
+                client.deactivate();
+            }
+        };
+        window.addEventListener('beforeunload', handleUnload);
+        return () => window.removeEventListener('beforeunload', handleUnload);
+    }, [username]);
+
     return {
         connected,
         matchData,
@@ -170,6 +202,7 @@ export function useWebSocket(username) {
         subscribeToMatch,
         runCode,
         submitCode,
+        goOffline,
         clearMatchData: () => setMatchData(null),
         clearMatchResult: () => setMatchResult(null),
         clearRunResult: () => setRunResult(null),
