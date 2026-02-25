@@ -30,6 +30,7 @@ function App() {
     sendChallenge, respondChallenge,
     challengeRequest, challengeResponse,
     clearChallengeRequest, clearChallengeResponse,
+    newNotification, clearNewNotification,
     goOffline,
   } = useWebSocket(username);
 
@@ -159,6 +160,8 @@ function App() {
           user={user}
           onLogout={handleLogout}
           isOnline={connected}
+          newNotification={newNotification}
+          clearNewNotification={clearNewNotification}
         />
       )}
       <div className={`transition-all duration-200 ${isPageTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'}`}>

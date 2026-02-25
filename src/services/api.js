@@ -292,3 +292,27 @@ export async function removeFriend(friendId) {
 
     return true;
 }
+
+// ============================================
+// Notification API Functions
+// ============================================
+
+export async function getNotifications() {
+    return apiGet('/api/notifications');
+}
+
+export async function getUnreadCount() {
+    return apiGet('/api/notifications/unread-count');
+}
+
+export async function markNotificationRead(id) {
+    const response = await authenticatedFetch(`/api/notifications/${id}/read`, { method: 'POST' });
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    return true;
+}
+
+export async function markAllNotificationsRead() {
+    const response = await authenticatedFetch('/api/notifications/mark-all-read', { method: 'POST' });
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    return true;
+}

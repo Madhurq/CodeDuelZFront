@@ -12,6 +12,7 @@ export function useWebSocket(username) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [challengeRequest, setChallengeRequest] = useState(null);   // incoming: { fromUsername }
     const [challengeResponse, setChallengeResponse] = useState(null); // outgoing response: { type, byUsername }
+    const [newNotification, setNewNotification] = useState(null);     // real-time push from server
     const clientRef = useRef(null);
 
     useEffect(() => {
@@ -69,6 +70,12 @@ export function useWebSocket(username) {
                         console.log('Submit result:', msg.body);
                         setSubmitResult(JSON.parse(msg.body));
                         setIsSubmitting(false);
+                    });
+
+                    // Subscribe to notification push
+                    client.subscribe(`/topic/user/${username}/notifications`, (msg) => {
+                        console.log('Notification:', msg.body);
+                        setNewNotification(JSON.parse(msg.body));
                     });
                 },
                 onDisconnect: () => setConnected(false),
@@ -219,5 +226,7 @@ export function useWebSocket(username) {
         clearSubmitResult: () => setSubmitResult(null),
         clearChallengeRequest: () => setChallengeRequest(null),
         clearChallengeResponse: () => setChallengeResponse(null),
+        newNotification,
+        clearNewNotification: () => setNewNotification(null),
     };
 }
