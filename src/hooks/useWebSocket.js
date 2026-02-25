@@ -157,6 +157,15 @@ export function useWebSocket(username) {
         }
     }, [username]);
 
+    const timeoutMatch = useCallback((matchId) => {
+        if (clientRef.current?.connected) {
+            clientRef.current.publish({
+                destination: '/app/match/timeout',
+                body: JSON.stringify({ matchId }),
+            });
+        }
+    }, []);
+
     // Explicit offline — call this before logout or closing app
     const goOffline = useCallback(() => {
         const client = clientRef.current;
@@ -201,6 +210,7 @@ export function useWebSocket(username) {
         respondChallenge,
         subscribeToMatch,
         runCode,
+        timeoutMatch,
         submitCode,
         goOffline,
         clearMatchData: () => setMatchData(null),

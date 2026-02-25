@@ -62,7 +62,7 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
   const {
     connected, matchResult, runResult, submitResult,
     isRunning, isSubmitting,
-    subscribeToMatch, runCode, submitCode,
+    subscribeToMatch, runCode, submitCode, timeoutMatch,
     clearRunResult, clearSubmitResult
   } = useWebSocket(username);
 
@@ -98,10 +98,17 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
         const elapsed = Math.floor((Date.now() - startTimeMs) / 1000);
         const remaining = Math.max(0, timeLimitSeconds - elapsed);
         setTimeLeft(remaining);
-        if (remaining <= 0) setMatchStatus('lost');
+        if (remaining <= 0) {
+          setMatchStatus('lost');
+          if (matchSettings?.matchId) timeoutMatch(matchSettings.matchId);
+        }
       } else {
         setTimeLeft((prev) => {
-          if (prev <= 1) { setMatchStatus('lost'); return 0; }
+          if (prev <= 1) {
+            setMatchStatus('lost');
+            if (matchSettings?.matchId) timeoutMatch(matchSettings.matchId);
+            return 0;
+          }
           return prev - 1;
         });
       }
@@ -164,8 +171,8 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
         <div className="flex items-center gap-4">
           {/* Timer */}
           <div className={`relative px-4 py-2 rounded-lg font-mono font-bold text-lg ${timeLeft < 60
-              ? 'bg-error/20 text-error animate-pulse'
-              : 'bg-surface-elevated text-text'
+            ? 'bg-error/20 text-error animate-pulse'
+            : 'bg-surface-elevated text-text'
             }`}>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent animate-pulse"></div>
             <span className="relative z-10">⏱ {formatTime(timeLeft)}</span>
@@ -212,7 +219,7 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                 )}
 
                 <div className="text-text-secondary text-sm whitespace-pre-wrap leading-relaxed mb-6">
-                  {problem.description}
+                  {problem.description?.replace(/\n\s*Example\s+\d+:[\s\S]*$/, '').trim()}
                 </div>
 
                 {problem.examples && problem.examples.length > 0 && (
@@ -270,8 +277,8 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                     key={lang.value}
                     onClick={() => setLanguage(lang.value)}
                     className={`px-3 py-1.5 text-sm font-medium transition-all flex items-center gap-1.5 ${language === lang.value
-                        ? 'bg-accent text-black'
-                        : 'text-text-secondary hover:text-text hover:bg-surface'
+                      ? 'bg-accent text-black'
+                      : 'text-text-secondary hover:text-text hover:bg-surface'
                       }`}
                   >
                     <span>{lang.icon}</span>
@@ -363,8 +370,8 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                 <button
                   onClick={() => setActiveTab('testcases')}
                   className={`px-3 py-1.5 text-xs font-semibold rounded-t-lg transition-colors ${activeTab === 'testcases'
-                      ? 'text-text bg-surface-elevated border border-b-0 border-border'
-                      : 'text-text-secondary hover:text-text'
+                    ? 'text-text bg-surface-elevated border border-b-0 border-border'
+                    : 'text-text-secondary hover:text-text'
                     }`}
                 >
                   Test Cases
@@ -372,8 +379,8 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                 <button
                   onClick={() => setActiveTab('output')}
                   className={`px-3 py-1.5 text-xs font-semibold rounded-t-lg transition-colors flex items-center gap-1.5 ${activeTab === 'output'
-                      ? 'text-text bg-surface-elevated border border-b-0 border-border'
-                      : 'text-text-secondary hover:text-text'
+                    ? 'text-text bg-surface-elevated border border-b-0 border-border'
+                    : 'text-text-secondary hover:text-text'
                     }`}
                 >
                   Output
@@ -384,8 +391,8 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
               </div>
               {currentResult && (
                 <div className={`text-xs font-bold px-2 py-0.5 rounded ${currentResult.status === 'ACCEPTED'
-                    ? 'bg-success/20 text-success'
-                    : 'bg-error/20 text-error'
+                  ? 'bg-success/20 text-success'
+                  : 'bg-error/20 text-error'
                   }`}>
                   {currentResult.status === 'ACCEPTED'
                     ? `✓ ${currentResult.totalPassed}/${currentResult.totalTests}`
@@ -446,8 +453,8 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
 
                       {currentResult.testCaseResults?.map((tc, i) => (
                         <div key={i} className={`mb-2 rounded-lg p-3 border ${tc.passed
-                            ? 'bg-success/5 border-success/20'
-                            : 'bg-error/5 border-error/20'
+                          ? 'bg-success/5 border-success/20'
+                          : 'bg-error/5 border-error/20'
                           }`}>
                           <div className="flex items-center gap-2 mb-2">
                             <span className={`text-sm ${tc.passed ? 'text-success' : 'text-error'}`}>
@@ -469,8 +476,8 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
                             <div>
                               <div className="text-xs text-text-muted mb-1">Output</div>
                               <pre className={`text-xs rounded p-2 whitespace-pre-wrap max-h-20 overflow-auto ${tc.passed
-                                  ? 'text-success bg-success/5'
-                                  : 'text-error bg-error/5'
+                                ? 'text-success bg-success/5'
+                                : 'text-error bg-error/5'
                                 }`}>{tc.actualOutput || '(empty)'}</pre>
                             </div>
                           </div>
@@ -496,8 +503,8 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-surface border border-border rounded-2xl p-8 max-w-md w-full text-center scale-in">
             <div className={`w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center ${matchStatus === 'won'
-                ? 'bg-success/20'
-                : 'bg-error/20'
+              ? 'bg-success/20'
+              : 'bg-error/20'
               }`}>
               {matchStatus === 'won' ? (
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-success">
