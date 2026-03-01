@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import ProfileCard from '../components/ProfileCard';
 import CompetitiveStats from '../components/CompetitiveStats';
 import EditProfiles from '../components/EditProfiles';
-import { apiGet, apiPut } from '../services/api';
+import { apiGet, apiPut, invalidateProfileCache } from '../services/api';
 import { auth } from '../config/firebase.js';
 import { signOut } from 'firebase/auth';
 
@@ -86,6 +86,7 @@ export default function Profile({ user }) {
       });
       setProfiles(newProfiles);
       setEditMode(false);
+      invalidateProfileCache();
     } catch (error) {
       console.error('Error saving profiles:', error);
       setError('Failed to save profiles.');

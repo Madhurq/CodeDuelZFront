@@ -1,4 +1,5 @@
 import { auth } from '../config/firebase';
+import { cacheGet, cacheSet, cacheInvalidate, cacheInvalidatePrefix } from './cache';
 
 const LOCAL_URL = 'http://localhost:8080';
 const REMOTE_URL = import.meta.env.VITE_API_BASE_URL || 'https://codeduelz-kscu.onrender.com';
@@ -109,8 +110,15 @@ export async function apiPut(url, data) {
 
 /**
  * Get the leaderboard (top 10 players) - no authentication required
+ * Cached for 2 minutes in the browser.
  */
-export async function getLeaderboard() {
+export async function getLeaderboard(bypassCache = false) {
+    const CACHE_KEY = 'leaderboard';
+    if (!bypassCache) {
+        const cached = cacheGet(CACHE_KEY);
+        if (cached) return cached;
+    }
+
     const BASE_URL = await getBaseUrl();
     const response = await fetch(`${BASE_URL}/leaderboard`, {
         method: 'GET',
@@ -121,13 +129,20 @@ export async function getLeaderboard() {
         throw new Error(`API error: ${response.status}`);
     }
 
-    return response.json();
+    const data = await response.json();
+    cacheSet(CACHE_KEY, data, 2 * 60 * 1000); // 2 min
+    return data;
 }
 
 /**
  * Get a user's public profile by ID - no authentication required
+ * Cached for 2 minutes per userId in the browser.
  */
 export async function getPublicProfile(userId) {
+    const CACHE_KEY = `publicProfile:${userId}`;
+    const cached = cacheGet(CACHE_KEY);
+    if (cached) return cached;
+
     const BASE_URL = await getBaseUrl();
     const response = await fetch(`${BASE_URL}/profile/${userId}`, {
         method: 'GET',
@@ -138,7 +153,9 @@ export async function getPublicProfile(userId) {
         throw new Error(`API error: ${response.status}`);
     }
 
-    return response.json();
+    const data = await response.json();
+    cacheSet(CACHE_KEY, data, 2 * 60 * 1000); // 2 min
+    return data;
 }
 
 /**
@@ -206,10 +223,17 @@ export async function getRandomProblem(difficulty) {
 
 /**
  * Get external stats from LeetCode, Codeforces, and CodeChef (authenticated)
+ * Cached for 5 minutes in the browser.
  * Returns: { leetCode: {...}, codeforces: {...}, codeChef: {...} }
  */
 export async function getExternalStats() {
-    return apiGet('/external-stats');
+    const CACHE_KEY = 'externalStats';
+    const cached = cacheGet(CACHE_KEY);
+    if (cached) return cached;
+
+    const data = await apiGet('/external-stats');
+    cacheSet(CACHE_KEY, data, 5 * 60 * 1000); // 5 min
+    return data;
 }
 
 // ============================================
@@ -315,4 +339,13 @@ export async function markAllNotificationsRead() {
     const response = await authenticatedFetch('/api/notifications/mark-all-read', { method: 'POST' });
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     return true;
+}
+
+export function invalidateLeaderboardCache() {
+    cacheInvalidate('leaderboard');
+}
+
+export function invalidateProfileCache() {
+    cacheInvalidatePrefix('publicProfile');
+    cacheInvalidate('externalStats');
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getLeaderboard } from '../services/api';
+import { getLeaderboard, invalidateLeaderboardCache } from '../services/api';
 import logo from '../assets/logo.png';
 
 const TrophyIcon = ({ rank }) => {
@@ -57,7 +57,8 @@ export default function Leaderboard({ onViewProfile }) {
     const fetchLeaderboard = async () => {
       try {
         setLoading(true);
-        const data = await getLeaderboard();
+        invalidateLeaderboardCache();
+        const data = await getLeaderboard(true);
         setLeaderboard(data || []);
       } catch (err) {
         setError('Failed to refresh leaderboard');
