@@ -105,7 +105,7 @@ export default function UserProfile({ userId, onBack }) {
                                 {profile.avatar ? (
                                     <img src={profile.avatar} alt={profile.userName} className="w-full h-full rounded-2xl object-cover" />
                                 ) : (
-                                    profile.userName?.charAt(0).toUpperCase() || '?'
+                                    <span className="text-5xl">👨‍💻</span>
                                 )}
                             </div>
                         </div>

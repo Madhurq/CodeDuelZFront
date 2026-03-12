@@ -50,6 +50,7 @@ export default function Profile({ user }) {
         });
 
         setProfiles({
+          username: data.userName || '',
           leetcode: data.leetcodeUsername || '',
           codechef: data.codechefUsername || '',
           codeforces: data.codeforcesHandle || '',
@@ -77,7 +78,9 @@ export default function Profile({ user }) {
   const handleSaveProfiles = async (newProfiles) => {
     try {
       setLoading(true);
+      setError(null);
       await apiPut('/profile', {
+        username: newProfiles.username,
         leetcodeUsername: newProfiles.leetcode,
         codechefUsername: newProfiles.codechef,
         codeforcesHandle: newProfiles.codeforces,
@@ -89,7 +92,17 @@ export default function Profile({ user }) {
       invalidateProfileCache();
     } catch (error) {
       console.error('Error saving profiles:', error);
-      setError('Failed to save profiles.');
+      // Try to extract error message from response
+      const errorMessage = error.message || error.toString();
+      if (errorMessage.includes('Username already taken')) {
+        setError('Username is already taken. Please choose a different one.');
+      } else if (errorMessage.includes('between 3 and 30')) {
+        setError('Username must be between 3 and 30 characters.');
+      } else if (errorMessage.includes('only contain')) {
+        setError('Username can only contain letters, numbers, and underscores.');
+      } else {
+        setError('Failed to save profile. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

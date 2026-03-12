@@ -331,7 +331,7 @@ export default function Friends({ user, onStartMatch, wsSendChallenge, wsMatchDa
                           <div key={friend.friendId} className="p-4 bg-success/5 border border-success/20 rounded-xl hover:border-success/40 transition-all">
                             <div className="flex items-center gap-3 mb-3">
                               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-accent-dim flex items-center justify-center text-white font-bold">
-                                {friend.username.charAt(0).toUpperCase()}
+                                <span className="text-lg">👨‍💻</span>
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium truncate">{friend.username}</div>
@@ -374,7 +374,7 @@ export default function Friends({ user, onStartMatch, wsSendChallenge, wsMatchDa
                           <div key={friend.friendId} className="p-4 bg-surface-elevated border border-border rounded-xl opacity-70">
                             <div className="flex items-center gap-3 mb-3">
                               <div className="w-10 h-10 rounded-lg bg-surface-hover flex items-center justify-center text-text-muted font-bold">
-                                {friend.username.charAt(0).toUpperCase()}
+                                <span className="text-lg">👨‍💻</span>
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium truncate">{friend.username}</div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import logo from '../assets/logo.png';
 import NotificationBell from './NotificationBell';
+import FindPlayersSearch from './FindPlayersSearch';
 
 const CodeIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -78,7 +79,7 @@ const CloseIcon = () => (
   </svg>
 );
 
-export default function Navbar({ currentPage, onPageChange, user, onLogout, isOnline, newNotification, clearNewNotification }) {
+export default function Navbar({ currentPage, onPageChange, user, onLogout, isOnline, newNotification, clearNewNotification, onViewProfile }) {
   const [isDark, setIsDark] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -166,6 +167,11 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout, isOn
               newNotification={newNotification}
               clearNewNotification={clearNewNotification}
               onNavigate={onPageChange}
+            />
+
+            {/* Find Players Search */}
+            <FindPlayersSearch
+              onViewProfile={onViewProfile}
             />
 
             {/* User Menu - Desktop */}

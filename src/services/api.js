@@ -222,6 +222,14 @@ export async function getRandomProblem(difficulty) {
 }
 
 /**
+ * Get current user's profile (authenticated)
+ * Returns: { userId, username, email, rating, wins, losses, etc. }
+ */
+export async function getCurrentUserProfile() {
+    return apiGet('/profile');
+}
+
+/**
  * Get external stats from LeetCode, Codeforces, and CodeChef (authenticated)
  * Cached for 5 minutes in the browser.
  * Returns: { leetCode: {...}, codeforces: {...}, codeChef: {...} }
@@ -348,4 +356,31 @@ export function invalidateLeaderboardCache() {
 export function invalidateProfileCache() {
     cacheInvalidatePrefix('publicProfile');
     cacheInvalidate('externalStats');
+}
+
+/**
+ * Search for users by username - uses leaderboard data
+ * @param {string} query - The search query
+ * @returns {Promise<Array>} - Array of matching users
+ */
+export async function searchUsers(query) {
+    if (!query || query.trim().length < 2) return [];
+    
+    const BASE_URL = await getBaseUrl();
+    const response = await fetch(`${BASE_URL}/leaderboard`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+    }
+
+    const users = await response.json();
+    const lowerQuery = query.toLowerCase().trim();
+    
+    return users.filter(user => 
+        user.userName?.toLowerCase().includes(lowerQuery) ||
+        user.email?.toLowerCase().includes(lowerQuery)
+    ).slice(0, 10);
 }

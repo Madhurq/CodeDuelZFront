@@ -118,12 +118,6 @@ export default function Leaderboard({ onViewProfile }) {
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-yellow-400/20 to-yellow-600/5 mb-6 relative">
-            <CrownIcon />
-            <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent rounded-full flex items-center justify-center text-xs animate-bounce">
-              ★
-            </div>
-          </div>
           <h1 className="text-4xl md:text-5xl font-black mb-3">
             <span className="text-gradient">Leaderboard</span>
           </h1>
@@ -164,13 +158,16 @@ export default function Leaderboard({ onViewProfile }) {
               <div className="flex justify-center items-end gap-4 mb-8">
                 {/* 2nd Place */}
                 {getTopThree()[1] && (
-                  <div className="order-1 transform translate-y-4">
+                  <button
+                    onClick={() => onViewProfile && onViewProfile(getTopThree()[1].userId)}
+                    className="order-1 transform translate-y-4 hover:scale-105 transition-transform cursor-pointer"
+                  >
                     <div className="relative">
                       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-3xl font-bold shadow-lg mb-3">
                         {getTopThree()[1].avatar ? (
                           <img src={getTopThree()[1].avatar} alt="" className="w-full h-full rounded-2xl object-cover" />
                         ) : (
-                          getTopThree()[1].userName?.charAt(0).toUpperCase()
+                          <span className="text-4xl">👨‍💻</span>
                         )}
                       </div>
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-2xl">🥈</div>
@@ -180,39 +177,45 @@ export default function Leaderboard({ onViewProfile }) {
                       <div className="text-lg font-black text-slate-300">{getTopThree()[1].rating}</div>
                     </div>
                     <div className="w-24 h-16 bg-gradient-to-t from-slate-400/30 to-transparent rounded-t-lg mx-auto mt-2"></div>
-                  </div>
+                  </button>
                 )}
 
                 {/* 1st Place */}
                 {getTopThree()[0] && (
-                  <div className="order-2">
+                  <button
+                    onClick={() => onViewProfile && onViewProfile(getTopThree()[0].userId)}
+                    className="order-2 hover:scale-105 transition-transform cursor-pointer"
+                  >
                     <div className="relative">
                       <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-4xl font-bold shadow-[0_0_30px_rgba(250,204,21,0.5)] mb-3 ring-4 ring-yellow-400/20">
                         {getTopThree()[0].avatar ? (
                           <img src={getTopThree()[0].avatar} alt="" className="w-full h-full rounded-2xl object-cover" />
                         ) : (
-                          getTopThree()[0].userName?.charAt(0).toUpperCase()
+                          <span className="text-5xl">👨‍💻</span>
                         )}
                       </div>
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-4xl animate-bounce">👑</div>
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-4xl">👑</div>
                     </div>
                     <div className="text-center">
                       <div className="font-bold truncate max-w-[100px] mx-auto">{getTopThree()[0].userName}</div>
                       <div className="text-2xl font-black text-yellow-400">{getTopThree()[0].rating}</div>
                     </div>
                     <div className="w-28 h-24 bg-gradient-to-t from-yellow-400/30 to-transparent rounded-t-lg mx-auto mt-2"></div>
-                  </div>
+                  </button>
                 )}
 
                 {/* 3rd Place */}
                 {getTopThree()[2] && (
-                  <div className="order-3 transform translate-y-8">
+                  <button
+                    onClick={() => onViewProfile && onViewProfile(getTopThree()[2].userId)}
+                    className="order-3 transform translate-y-8 hover:scale-105 transition-transform cursor-pointer"
+                  >
                     <div className="relative">
                       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center text-3xl font-bold shadow-lg mb-3">
                         {getTopThree()[2].avatar ? (
                           <img src={getTopThree()[2].avatar} alt="" className="w-full h-full rounded-2xl object-cover" />
                         ) : (
-                          getTopThree()[2].userName?.charAt(0).toUpperCase()
+                          <span className="text-4xl">👨‍💻</span>
                         )}
                       </div>
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-2xl">🥉</div>
@@ -222,7 +225,7 @@ export default function Leaderboard({ onViewProfile }) {
                       <div className="text-lg font-black text-amber-600">{getTopThree()[2].rating}</div>
                     </div>
                     <div className="w-24 h-12 bg-gradient-to-t from-amber-600/30 to-transparent rounded-t-lg mx-auto mt-2"></div>
-                  </div>
+                  </button>
                 )}
               </div>
             )}
@@ -242,7 +245,7 @@ export default function Leaderboard({ onViewProfile }) {
                     {player.avatar ? (
                       <img src={player.avatar} alt={player.userName} className="w-full h-full rounded-xl object-cover" />
                     ) : (
-                      player.userName?.charAt(0).toUpperCase() || '?'
+                      <span className="text-xl">👨‍💻</span>
                     )}
                   </div>
 

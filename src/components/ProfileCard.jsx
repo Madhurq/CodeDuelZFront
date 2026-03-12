@@ -41,7 +41,7 @@ export default function ProfileCard({ profileData, onEditClick, onLogout, onAvat
           {profileData.avatar ? (
             <img src={profileData.avatar} alt="Avatar" className="w-full h-full object-cover" />
           ) : (
-            '👨‍💻'
+            <span className="text-5xl">👨‍💻</span>
           )}
         </div>
         <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
