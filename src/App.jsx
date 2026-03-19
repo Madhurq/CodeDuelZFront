@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useWebSocket } from './hooks/useWebSocket';
 import { auth } from './config/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { getCurrentUserProfile } from './services/api';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
@@ -17,6 +18,7 @@ import ChallengeModal from './components/ChallengeModal';
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [user, setUser] = useState(null);
+  const [dbUser, setDbUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [matchSettings, setMatchSettings] = useState(null);
@@ -24,7 +26,7 @@ function App() {
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
   const [declinedToast, setDeclinedToast] = useState('');
 
-  const username = user?.email?.split('@')[0] || null;
+  const username = dbUser?.userName || null;
   const {
     connected, matchData, joinQueue, leaveQueue, clearMatchData,
     sendChallenge, respondChallenge,
@@ -41,8 +43,18 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        try {
+          const profile = await getCurrentUserProfile();
+          setDbUser(profile);
+        } catch (error) {
+          console.error('Failed to load user profile', error);
+        }
+      } else {
+        setDbUser(null);
+      }
       setLoading(false);
     });
     return unsubscribe;
