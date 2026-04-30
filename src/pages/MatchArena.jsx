@@ -89,15 +89,14 @@ export default function MatchArena() {
     }
   }, [matchSettings?.matchId, connected, subscribeToMatch]);
 
-  useEffect(() => {
-    if (matchResult) {
-      console.log("Match Result Received:", matchResult);
-      console.log("Current Username:", username);
-      const won = String(matchResult.winnerName).toLowerCase() === String(username).toLowerCase();
-      console.log("Won status:", won);
-      setMatchStatus(won ? 'won' : 'lost');
-    }
-  }, [matchResult, username]);
+useEffect(() => {
+  // Only handle result that belongs to the current match
+  if (matchResult && matchSettings?.matchId && matchResult.matchId === matchSettings.matchId) {
+    console.log('Match Result Received:', matchResult);
+    const won = String(matchResult.winnerName).toLowerCase() === String(username).toLowerCase();
+    setMatchStatus(won ? 'won' : 'lost');
+  }
+}, [matchResult, username, matchSettings?.matchId]);
 
   useEffect(() => {
     if (runResult || submitResult) {
