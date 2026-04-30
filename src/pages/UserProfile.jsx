@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getPublicProfile } from '../services/api';
 
-export default function UserProfile({ userId, onBack }) {
+export default function UserProfile() {
+    const { userId } = useParams();
+    const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -59,7 +62,7 @@ export default function UserProfile({ userId, onBack }) {
                         <h2 className="text-2xl font-bold mb-2">Profile Not Found</h2>
                         <p className="text-lg text-error mb-6">{error || 'Profile not found'}</p>
                         <button
-                            onClick={onBack}
+                            onClick={() => navigate(-1)}
                             className="btn-primary"
                         >
                             ← Back to Leaderboard
@@ -85,7 +88,7 @@ export default function UserProfile({ userId, onBack }) {
             <div className="relative z-10 max-w-[900px] mx-auto p-6 lg:p-8">
                 {/* Back Button */}
                 <button
-                    onClick={onBack}
+                    onClick={() => navigate(-1)}
                     className="mb-6 flex items-center gap-2 text-text-secondary hover:text-accent transition-colors"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

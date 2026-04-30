@@ -164,6 +164,15 @@ export function useWebSocket(username) {
         }
     }, [username]);
 
+    const quitMatch = useCallback((matchId) => {
+        if (clientRef.current?.connected) {
+            clientRef.current.publish({
+                destination: '/app/match/quit',
+                body: JSON.stringify({ username, matchId }),
+            });
+        }
+    }, [username]);
+
     const timeoutMatch = useCallback((matchId) => {
         if (clientRef.current?.connected) {
             clientRef.current.publish({
@@ -217,6 +226,7 @@ export function useWebSocket(username) {
         respondChallenge,
         subscribeToMatch,
         runCode,
+        quitMatch,
         timeoutMatch,
         submitCode,
         goOffline,

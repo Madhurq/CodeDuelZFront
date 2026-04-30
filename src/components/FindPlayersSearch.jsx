@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { searchUsers } from '../services/api';
 
-export default function FindPlayersSearch({ onViewProfile }) {
+export default function FindPlayersSearch() {
+    const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
@@ -60,9 +62,7 @@ export default function FindPlayersSearch({ onViewProfile }) {
     }, [query]);
 
     const handleSelectUser = (userId) => {
-        if (onViewProfile) {
-            onViewProfile(userId);
-        }
+        navigate(`/user/${userId}`);
         setOpen(false);
         setQuery('');
         setResults([]);

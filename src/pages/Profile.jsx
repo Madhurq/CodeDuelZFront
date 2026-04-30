@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import ProfileCard from '../components/ProfileCard';
 import CompetitiveStats from '../components/CompetitiveStats';
 import EditProfiles from '../components/EditProfiles';
@@ -6,7 +7,8 @@ import { apiGet, apiPut, invalidateProfileCache } from '../services/api';
 import { auth } from '../config/firebase.js';
 import { signOut } from 'firebase/auth';
 
-export default function Profile({ user }) {
+export default function Profile() {
+  const { user } = useAuth();
   const [profileData, setProfileData] = useState({
     name: user?.displayName || 'Developer',
     email: user?.email || '',
@@ -80,7 +82,7 @@ export default function Profile({ user }) {
       setLoading(true);
       setError(null);
       await apiPut('/profile', {
-        username: newProfiles.username,
+        userName: newProfiles.username,
         leetcodeUsername: newProfiles.leetcode,
         codechefUsername: newProfiles.codechef,
         codeforcesHandle: newProfiles.codeforces,

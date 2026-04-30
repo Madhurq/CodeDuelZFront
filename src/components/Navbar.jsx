@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { useWS } from '../contexts/WebSocketContext';
 import logo from '../assets/logo.png';
 import NotificationBell from './NotificationBell';
 import FindPlayersSearch from './FindPlayersSearch';
@@ -79,9 +82,16 @@ const CloseIcon = () => (
   </svg>
 );
 
-export default function Navbar({ currentPage, onPageChange, user, onLogout, isOnline, newNotification, clearNewNotification, onViewProfile }) {
+export default function Navbar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, handleLogout } = useAuth();
+  const { connected: isOnline, newNotification, clearNewNotification, goOffline } = useWS();
   const [isDark, setIsDark] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Determine current page from pathname
+  const currentPage = location.pathname.split('/')[1] || 'home';
 
 
   useEffect(() => {
@@ -112,10 +122,10 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout, isOn
   };
 
   const navItems = [
-    { id: 'home', label: 'Home', icon: <HomeIcon /> },
-    { id: 'friends', label: 'Friends', icon: <UsersIcon /> },
-    { id: 'leaderboard', label: 'Leaderboard', icon: <TrophyIcon /> },
-    { id: 'profile', label: 'Profile', icon: <UserIcon /> },
+    { id: 'home', path: '/home', label: 'Home', icon: <HomeIcon /> },
+    { id: 'friends', path: '/friends', label: 'Friends', icon: <UsersIcon /> },
+    { id: 'leaderboard', path: '/leaderboard', label: 'Leaderboard', icon: <TrophyIcon /> },
+    { id: 'profile', path: '/profile', label: 'Profile', icon: <UserIcon /> },
   ];
 
   return (
@@ -124,7 +134,7 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout, isOn
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <button
-            onClick={() => onPageChange('home')}
+            onClick={() => navigate('/home')}
             className="flex items-center gap-3 group"
           >
             <img src={logo} alt="CodeDuelZ" className="w-10 h-10 transition-transform group-hover:scale-110" />
@@ -136,7 +146,7 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout, isOn
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => onPageChange(item.id)}
+                onClick={() => navigate(item.path)}
                 className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${currentPage === item.id
                   ? 'text-accent bg-accent/10'
                   : 'text-text-secondary hover:text-text hover:bg-surface-elevated'
@@ -166,13 +176,10 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout, isOn
             <NotificationBell
               newNotification={newNotification}
               clearNewNotification={clearNewNotification}
-              onNavigate={onPageChange}
             />
 
             {/* Find Players Search */}
-            <FindPlayersSearch
-              onViewProfile={onViewProfile}
-            />
+            <FindPlayersSearch />
 
             {/* User Menu - Desktop */}
             <div className="hidden md:flex items-center gap-3">
@@ -186,7 +193,7 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout, isOn
                 </span>
               </div>
               <button
-                onClick={onLogout}
+                onClick={() => { goOffline(); handleLogout(); }}
                 className="p-2.5 rounded-lg bg-surface-elevated border border-border hover:border-error/30 text-text-secondary hover:text-error transition-all"
                 title="Logout"
               >
@@ -215,7 +222,7 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout, isOn
             <button
               key={item.id}
               onClick={() => {
-                onPageChange(item.id);
+                navigate(item.path);
                 setMobileMenuOpen(false);
               }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${currentPage === item.id
@@ -230,7 +237,8 @@ export default function Navbar({ currentPage, onPageChange, user, onLogout, isOn
           <hr className="border-border my-2" />
           <button
             onClick={() => {
-              onLogout();
+              goOffline();
+              handleLogout();
               setMobileMenuOpen(false);
             }}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-error hover:bg-error/10"

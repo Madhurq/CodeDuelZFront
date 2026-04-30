@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { useWS } from '../contexts/WebSocketContext';
 import MatchSearch from '../components/MatchSearch';
 import QuickStats from '../components/QuickStats';
 import MatchHistory from '../components/MatchHistory';
 import { apiGet, getMatchHistory } from '../services/api';
 import logo from '../assets/logo.png';
 
-export default function Home({ user, onStartMatch, wsConnected, wsMatchData, wsJoinQueue, wsLeaveQueue, wsClearMatchData }) {
+export default function Home() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { connected, matchData, joinQueue, leaveQueue, clearMatchData } = useWS();
   const [stats, setStats] = useState({
     matches: 0,
     wins: 0,
@@ -55,7 +61,7 @@ export default function Home({ user, onStartMatch, wsConnected, wsMatchData, wsJ
   }, [user]);
 
   const handleMatchFound = (settings) => {
-    if (onStartMatch) onStartMatch(settings);
+    navigate('/match', { state: settings });
   };
 
   const steps = [
@@ -87,7 +93,7 @@ export default function Home({ user, onStartMatch, wsConnected, wsMatchData, wsJ
 
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 mb-12">
-          <MatchSearch onMatchFound={handleMatchFound} username={user?.email?.split('@')[0]} wsConnected={wsConnected} wsMatchData={wsMatchData} wsJoinQueue={wsJoinQueue} wsLeaveQueue={wsLeaveQueue} wsClearMatchData={wsClearMatchData} />
+          <MatchSearch onMatchFound={handleMatchFound} username={user?.email?.split('@')[0]} wsConnected={connected} wsMatchData={matchData} wsJoinQueue={joinQueue} wsLeaveQueue={leaveQueue} wsClearMatchData={clearMatchData} />
           <QuickStats stats={stats} loading={historyLoading} />
         </div>
 

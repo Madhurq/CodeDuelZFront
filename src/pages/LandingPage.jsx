@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
 const CodeIcon = () => (
@@ -54,7 +55,8 @@ const ArrowRight = () => (
   </svg>
 );
 
-export default function LandingPage({ onLoginClick }) {
+export default function LandingPage() {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -102,13 +104,13 @@ export default function LandingPage({ onLoginClick }) {
         
         <div className="flex items-center gap-4">
           <button
-            onClick={onLoginClick}
+            onClick={() => navigate('/login')}
             className="text-text-secondary hover:text-text transition-colors text-sm font-medium"
           >
             Sign In
           </button>
           <button
-            onClick={onLoginClick}
+            onClick={() => navigate('/login')}
             className="btn-primary"
           >
             Get Started
@@ -143,13 +145,16 @@ export default function LandingPage({ onLoginClick }) {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
             <button
-              onClick={onLoginClick}
+              onClick={() => navigate('/login')}
               className="btn-primary text-lg px-10 py-4"
             >
               Start Coding Now
               <ArrowRight />
             </button>
-            <button className="btn-secondary text-lg px-10 py-4">
+            <button
+              onClick={() => navigate('/leaderboard')}
+              className="btn-secondary text-lg px-10 py-4"
+            >
               View Leaderboard
             </button>
           </div>
@@ -302,7 +307,7 @@ function twoSum(nums, target) {
                 Join thousands of developers competing daily. Your next battle is just a click away.
               </p>
               <button
-                onClick={onLoginClick}
+                onClick={() => navigate('/login')}
                 className="btn-primary text-lg px-12 py-5"
               >
                 Start Battling Free

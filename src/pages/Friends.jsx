@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { useWS } from '../contexts/WebSocketContext';
 import {
   getFriends,
   getPendingRequests,
@@ -8,7 +11,10 @@ import {
   removeFriend,
 } from '../services/api';
 
-export default function Friends({ user, onStartMatch, wsSendChallenge, wsMatchData, wsClearMatchData }) {
+export default function Friends() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { sendChallenge: wsSendChallenge, matchData, clearMatchData } = useWS();
   const [friends, setFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,12 +44,12 @@ export default function Friends({ user, onStartMatch, wsSendChallenge, wsMatchDa
 
   // When match data arrives (challenge accepted), navigate to arena
   useEffect(() => {
-    if (wsMatchData && onStartMatch) {
-      onStartMatch(wsMatchData);
-      if (wsClearMatchData) wsClearMatchData();
+    if (matchData) {
+      navigate('/match', { state: matchData });
+      clearMatchData();
       setPendingChallenge(null);
     }
-  }, [wsMatchData, onStartMatch, wsClearMatchData]);
+  }, [matchData, navigate, clearMatchData]);
 
   const loadData = async () => {
     try {

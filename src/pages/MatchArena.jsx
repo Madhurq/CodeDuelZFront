@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
-import { useWebSocket } from '../hooks/useWebSocket';
+import { useAuth } from '../contexts/AuthContext';
+import { useWS } from '../contexts/WebSocketContext';
 
 // LeetCode-style class/function fallback starters (used only when problem has no snippet)
 const STARTER_CODE = {
@@ -47,7 +49,18 @@ function getStarterCode(language, problem) {
   return STARTER_CODE[language] || STARTER_CODE.cpp;
 }
 
-export default function MatchArena({ matchSettings, onMatchEnd, user, dbUser }) {
+export default function MatchArena() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, dbUser } = useAuth();
+  const {
+    connected, matchResult, runResult, submitResult,
+    isRunning, isSubmitting,
+    subscribeToMatch, runCode, submitCode, quitMatch, timeoutMatch,
+    clearRunResult, clearSubmitResult
+  } = useWS();
+
+  const matchSettings = location.state;
   const username = dbUser?.userName || user?.email?.split('@')[0];
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState(matchSettings?.language || 'cpp');
@@ -59,12 +72,16 @@ export default function MatchArena({ matchSettings, onMatchEnd, user, dbUser }) 
   const problem = matchSettings?.problem;
   const startTimeMs = matchSettings?.startTimeMs;
 
-  const {
-    connected, matchResult, runResult, submitResult,
-    isRunning, isSubmitting,
-    subscribeToMatch, runCode, submitCode, timeoutMatch,
-    clearRunResult, clearSubmitResult
-  } = useWebSocket(username);
+  // Guard: if no match settings, redirect to home
+  useEffect(() => {
+    if (!matchSettings) {
+      navigate('/home', { replace: true });
+    }
+  }, [matchSettings, navigate]);
+
+  if (!matchSettings) {
+    return null; // Don't render anything while redirecting
+  }
 
   useEffect(() => {
     if (matchSettings?.matchId && connected) {
@@ -74,7 +91,10 @@ export default function MatchArena({ matchSettings, onMatchEnd, user, dbUser }) 
 
   useEffect(() => {
     if (matchResult) {
-      const won = matchResult.winnerName === username;
+      console.log("Match Result Received:", matchResult);
+      console.log("Current Username:", username);
+      const won = String(matchResult.winnerName).toLowerCase() === String(username).toLowerCase();
+      console.log("Won status:", won);
       setMatchStatus(won ? 'won' : 'lost');
     }
   }, [matchResult, username]);
@@ -135,7 +155,26 @@ export default function MatchArena({ matchSettings, onMatchEnd, user, dbUser }) 
     }
   }, [matchSettings?.matchId, code, language, submitCode, clearSubmitResult]);
 
-  const opponent = matchSettings?.player1?.name === username ? matchSettings?.player2 : matchSettings?.player1;
+  const handleLeave = useCallback(() => {
+    if (matchStatus === 'in_progress') {
+      if (window.confirm("Are you sure you want to leave? This will count as a forfeit and your ELO rating will decrease.")) {
+        if (matchSettings?.matchId) {
+          console.log("Quitting match:", matchSettings.matchId);
+          quitMatch(matchSettings.matchId);
+          // Small delay to ensure STOMP message is sent before component unmounts
+          setTimeout(() => navigate('/home'), 200);
+        } else {
+          navigate('/home');
+        }
+      }
+    } else {
+      navigate('/home');
+    }
+  }, [matchStatus, matchSettings?.matchId, quitMatch, navigate]);
+
+  const opponent = (
+    String(matchSettings?.player1?.userName || matchSettings?.player1?.name || '').toLowerCase() === String(username).toLowerCase()
+  ) ? matchSettings?.player2 : matchSettings?.player1;
   const currentResult = submitResult || runResult;
 
   const getDifficultyColor = (difficulty) => {
@@ -187,7 +226,7 @@ export default function MatchArena({ matchSettings, onMatchEnd, user, dbUser }) 
           )}
 
           <button
-            onClick={() => onMatchEnd && onMatchEnd(false)}
+            onClick={handleLeave}
             className="px-4 py-2 rounded-lg bg-error/10 text-error hover:bg-error/20 font-medium transition-colors flex items-center gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -542,7 +581,7 @@ export default function MatchArena({ matchSettings, onMatchEnd, user, dbUser }) 
             )}
 
             <button
-              onClick={() => onMatchEnd && onMatchEnd(matchStatus === 'won')}
+              onClick={() => navigate('/home')}
               className="btn-primary w-full py-4"
             >
               Return to Dashboard

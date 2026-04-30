@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { auth } from '../config/firebase.js';
 import logo from '../assets/logo.png';
 import {
@@ -13,7 +14,8 @@ import {
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
 
-export default function Login({ onBack }) {
+export default function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -146,10 +148,10 @@ export default function Login({ onBack }) {
 
             <div className="relative z-10 w-full max-w-md px-6">
               {/* Back Button */}
-              {onBack && (
+              {true && (
                 <button
                   id="login-back-btn"
-                  onClick={onBack}
+                  onClick={() => navigate('/')}
                   className="flex items-center gap-2 text-text-secondary hover:text-text transition-colors mb-8"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -292,9 +294,9 @@ export default function Login({ onBack }) {
 
         <div className="relative z-10 w-full max-w-md">
           {/* Back Button */}
-          {onBack && (
+          {true && (
             <button
-              onClick={onBack}
+              onClick={() => navigate('/')}
               className="flex items-center gap-2 text-text-secondary hover:text-text transition-colors mb-8"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getLeaderboard, invalidateLeaderboardCache } from '../services/api';
 import logo from '../assets/logo.png';
 
@@ -27,7 +28,8 @@ const CrownIcon = () => (
   </svg>
 );
 
-export default function Leaderboard({ onViewProfile }) {
+export default function Leaderboard() {
+  const navigate = useNavigate();
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -159,7 +161,7 @@ export default function Leaderboard({ onViewProfile }) {
                 {/* 2nd Place */}
                 {getTopThree()[1] && (
                   <button
-                    onClick={() => onViewProfile && onViewProfile(getTopThree()[1].userId)}
+                    onClick={() => navigate(`/user/${getTopThree()[1].userId}`)}
                     className="order-1 transform translate-y-4 hover:scale-105 transition-transform cursor-pointer"
                   >
                     <div className="relative">
@@ -183,7 +185,7 @@ export default function Leaderboard({ onViewProfile }) {
                 {/* 1st Place */}
                 {getTopThree()[0] && (
                   <button
-                    onClick={() => onViewProfile && onViewProfile(getTopThree()[0].userId)}
+                    onClick={() => navigate(`/user/${getTopThree()[0].userId}`)}
                     className="order-2 hover:scale-105 transition-transform cursor-pointer"
                   >
                     <div className="relative">
@@ -207,7 +209,7 @@ export default function Leaderboard({ onViewProfile }) {
                 {/* 3rd Place */}
                 {getTopThree()[2] && (
                   <button
-                    onClick={() => onViewProfile && onViewProfile(getTopThree()[2].userId)}
+                    onClick={() => navigate(`/user/${getTopThree()[2].userId}`)}
                     className="order-3 transform translate-y-8 hover:scale-105 transition-transform cursor-pointer"
                   >
                     <div className="relative">
@@ -260,7 +262,7 @@ export default function Leaderboard({ onViewProfile }) {
                   </div>
 
                   <button
-                    onClick={() => onViewProfile && onViewProfile(player.userId)}
+                    onClick={() => navigate(`/user/${player.userId}`)}
                     className="px-4 py-2 rounded-lg bg-surface-elevated border border-border hover:border-accent hover:text-accent text-sm font-medium transition-all"
                   >
                     Profile

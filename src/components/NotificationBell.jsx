@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getNotifications, getUnreadCount, markNotificationRead, markAllNotificationsRead } from '../services/api';
 
 const ICONS = {
@@ -20,7 +21,8 @@ function timeAgo(dateStr) {
     return `${Math.floor(hrs / 24)}d ago`;
 }
 
-export default function NotificationBell({ newNotification, clearNewNotification, onNavigate }) {
+export default function NotificationBell({ newNotification, clearNewNotification }) {
+    const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -86,9 +88,9 @@ export default function NotificationBell({ newNotification, clearNewNotification
         }
         // Navigate based on type
         if (notif.type === 'FRIEND_REQUEST' || notif.type === 'FRIEND_ACCEPTED') {
-            onNavigate?.('friends');
+            navigate('/friends');
         } else {
-            onNavigate?.('home');
+            navigate('/home');
         }
         setOpen(false);
     };
