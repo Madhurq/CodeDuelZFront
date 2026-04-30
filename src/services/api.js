@@ -89,7 +89,9 @@ export async function apiPost(url, data) {
         throw new Error(`API error: ${response.status}`);
     }
 
-    return response.json();
+    // Some endpoints return void/empty body — handle gracefully
+    const text = await response.text();
+    return text ? JSON.parse(text) : true;
 }
 
 /**
@@ -105,7 +107,9 @@ export async function apiPut(url, data) {
         throw new Error(`API error: ${response.status}`);
     }
 
-    return response.json();
+    // Some endpoints return void/empty body — handle gracefully
+    const text = await response.text();
+    return text ? JSON.parse(text) : true;
 }
 
 /**
@@ -359,7 +363,7 @@ export function invalidateProfileCache() {
 }
 
 /**
- * Search for users by username - uses leaderboard data
+ * Search for users by username — uses dedicated search endpoint
  * @param {string} query - The search query
  * @returns {Promise<Array>} - Array of matching users
  */
@@ -367,7 +371,7 @@ export async function searchUsers(query) {
     if (!query || query.trim().length < 2) return [];
     
     const BASE_URL = await getBaseUrl();
-    const response = await fetch(`${BASE_URL}/leaderboard`, {
+    const response = await fetch(`${BASE_URL}/public/users/search?q=${encodeURIComponent(query.trim())}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
     });
@@ -376,11 +380,5 @@ export async function searchUsers(query) {
         throw new Error(`API error: ${response.status}`);
     }
 
-    const users = await response.json();
-    const lowerQuery = query.toLowerCase().trim();
-    
-    return users.filter(user => 
-        user.userName?.toLowerCase().includes(lowerQuery) ||
-        user.email?.toLowerCase().includes(lowerQuery)
-    ).slice(0, 10);
+    return response.json();
 }

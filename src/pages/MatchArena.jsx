@@ -47,8 +47,8 @@ function getStarterCode(language, problem) {
   return STARTER_CODE[language] || STARTER_CODE.cpp;
 }
 
-export default function MatchArena({ matchSettings, onMatchEnd, user }) {
-  const username = user?.email?.split('@')[0];
+export default function MatchArena({ matchSettings, onMatchEnd, user, dbUser }) {
+  const username = dbUser?.userName || user?.email?.split('@')[0];
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState(matchSettings?.language || 'cpp');
   const [timeLeft, setTimeLeft] = useState(matchSettings?.timeLimitSeconds || 900);
@@ -117,7 +117,7 @@ export default function MatchArena({ matchSettings, onMatchEnd, user }) {
     tick();
     const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
-  }, [matchStatus, startTimeMs, matchSettings?.timeLimitSeconds]);
+  }, [matchStatus, startTimeMs, matchSettings?.timeLimitSeconds, matchSettings?.matchId, timeoutMatch]);
 
   const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 

@@ -45,7 +45,9 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      setLoading(false); // Stop showing spinner as soon as Firebase resolves
       if (currentUser) {
+        // Load profile in background — don't block the UI
         try {
           const profile = await getCurrentUserProfile();
           setDbUser(profile);
@@ -55,7 +57,6 @@ function App() {
       } else {
         setDbUser(null);
       }
-      setLoading(false);
     });
     return unsubscribe;
   }, []);
@@ -186,7 +187,7 @@ function App() {
           <UserProfile userId={selectedUserId} onBack={handleBackToLeaderboard} />
         )}
         {currentPage === 'match-arena' && (
-          <MatchArena matchSettings={matchSettings} onMatchEnd={handleMatchEnd} user={user} />
+          <MatchArena matchSettings={matchSettings} onMatchEnd={handleMatchEnd} user={user} dbUser={dbUser} />
         )}
       </div>
     </>
